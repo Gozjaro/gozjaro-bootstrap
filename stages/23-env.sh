@@ -11,7 +11,8 @@ lfs_home=$(getent passwd lfs | cut -d: -f6)
 
 install -o lfs -g lfs -m 644 /dev/stdin "$lfs_home/.bash_profile" <<'EOF'
 if [ -n "$BASH_EXECUTION_STRING" ]; then
-    exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' GOZJARO_ROOT=$GOZJARO_ROOT /bin/bash -c "$BASH_EXECUTION_STRING"
+    exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' GOZJARO_ROOT=$GOZJARO_ROOT \
+        /bin/bash -c "source \$HOME/.bashrc; $BASH_EXECUTION_STRING"
 fi
 exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
 EOF
