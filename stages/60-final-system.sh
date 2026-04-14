@@ -343,7 +343,7 @@ b_gperf() {
 }
 
 b_expat() {
-    ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/expat-2.7.1
+    ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/expat-2.7.5
     make && make install
 }
 
