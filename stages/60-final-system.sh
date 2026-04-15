@@ -433,10 +433,13 @@ GTKM4
     # Pre-seed a stub for libkmod/docs/gtk-doc.make (referenced by
     # Makefile.am via include; autoreconf needs it to exist on disk).
     install -Dm644 /dev/null libkmod/docs/gtk-doc.make 2>/dev/null || true
+    # Strip the GTK_DOC_CHECK call from configure.ac so autoreconf doesn't
+    # invoke gtkdocize (which isn't installed). Our m4/gtk-doc.m4 stub is
+    # then also unneeded but harmless.
+    sed -i '/^GTK_DOC_CHECK/d' configure.ac
     # kmod ships ltmain.sh + aclocal.m4 from a 2.5.4.1-baa1-dirty libtool
     # snapshot that fails the runtime version check against installed
-    # libtool 2.5.4. Regenerate everything from the host autotools; our
-    # m4/gtk-doc.m4 stub lets aclocal succeed without gtk-doc.
+    # libtool 2.5.4. Regenerate everything from the host autotools.
     autoreconf -fi
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
         --disable-manpages
