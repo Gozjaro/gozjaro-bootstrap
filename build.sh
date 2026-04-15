@@ -80,6 +80,15 @@ run_stage() {
         "$script"
     elif stage_is_lfs_user "$stage"; then
         require_root
+        # Make the repo path traversable+readable for the lfs user. Otherwise
+        # repos under e.g. /root or another user's home (mode 700) can't be
+        # read by the lfs login shell at all.
+        local p="$GOZJARO_ROOT"
+        while [ "$p" != "/" ] && [ -n "$p" ]; do
+            chmod a+x "$p" 2>/dev/null || true
+            p=$(dirname "$p")
+        done
+        chmod -R a+rX "$GOZJARO_ROOT" 2>/dev/null || true
         # Re-invoke the same script as the lfs user with its login env.
         su -l lfs -c "GOZJARO_ROOT='$GOZJARO_ROOT' bash '$script'"
     else
