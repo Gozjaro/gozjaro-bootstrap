@@ -74,7 +74,6 @@ log "creating squashfs from $LFS (this takes a while)"
 mksquashfs "$LFS" "$ISOROOT/live/filesystem.squashfs" \
     -comp xz \
     -noappend \
-    -wildcards \
     -e \
         "$LFS/sources" \
         "$LFS/tools" \
