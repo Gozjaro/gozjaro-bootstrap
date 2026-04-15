@@ -434,6 +434,9 @@ GTKM4
     # installed libtool 2.5.4. Sync them so LT_INIT at run-time agrees with
     # the macros baked into aclocal.m4.
     libtoolize --force --copy --install 2>/dev/null || true
+    # libtoolize may replace build-aux without restoring all helpers
+    # (e.g. `compile`). Pull them from automake.
+    automake --add-missing --copy --force-missing 2>/dev/null || true
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
         --disable-manpages
     # Also drop an empty gtk-doc.make in case Makefile.am still -include's it
