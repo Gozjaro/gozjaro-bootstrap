@@ -33,6 +33,7 @@ STAGES=(
   51-chroot-tools
   60-final-system
   70-system-config
+  80-kernel
 )
 
 # Stages that must be executed as the lfs user.
@@ -46,7 +47,7 @@ stage_is_lfs_user() {
 # Stages that run inside the chroot.
 stage_is_chroot() {
     case "$1" in
-        51-chroot-tools|60-final-system|70-system-config) return 0 ;;
+        51-chroot-tools|60-final-system|70-system-config|80-kernel) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -76,7 +77,12 @@ run_stage() {
 
     if stage_is_chroot "$stage"; then
         # Chroot stages are launched by 50-chroot-prep re-entering this runner.
-        require_chroot
+        # When invoked from outside the chroot (e.g. by `build.sh all`), skip
+        # them silently — stage 50 drives the chroot run.
+        if [ ! -f /.gozjaro-chroot ]; then
+            log "skip stage $stage (driven by 50-chroot-prep)"
+            return 0
+        fi
         "$script"
     elif stage_is_lfs_user "$stage"; then
         require_root

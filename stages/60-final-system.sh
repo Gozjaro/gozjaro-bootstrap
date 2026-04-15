@@ -12,7 +12,7 @@ require_root
 
 # ---- Docs / data packages ----------------------------------------------------
 
-b_man_pages() { make prefix=/usr install; }
+b_man_pages() { make -R prefix=/usr install; }
 
 b_iana_etc() {
     cp services protocols /etc
