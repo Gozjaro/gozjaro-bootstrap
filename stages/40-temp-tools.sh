@@ -128,11 +128,11 @@ b_patch() {
 
 b_sed() {
     ./configure --prefix=/usr --host="$LFS_TGT"
-    # Pre-stamp the help2man-generated manpage; the cross-built sed binary
-    # can't run on the host so help2man would fail.
-    touch doc/sed.1
-    make
-    make DESTDIR="$LFS" install
+    # Cross-built sed/sed cannot execute on the host, so help2man fails
+    # while regenerating doc/sed.1. Replace help2man with a no-op for this
+    # build; the manpage shipped in the tarball is good enough.
+    make HELP2MAN=true
+    make DESTDIR="$LFS" HELP2MAN=true install
 }
 
 b_tar() {
