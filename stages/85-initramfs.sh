@@ -28,7 +28,9 @@ fi
 log "building initramfs for kernel $KVER"
 
 # --- staging ------------------------------------------------------------------
+mkdir -p /tmp
 STAGING=$(mktemp -d /tmp/gozjaro-initramfs.XXXXXX)
+log "staging dir: $STAGING"
 trap 'rm -rf "$STAGING"' EXIT
 
 mkdir -p "$STAGING"/{bin,sbin,lib,lib64,etc,proc,sys,dev,run,newroot}
@@ -49,6 +51,7 @@ resolve_bin() {
     # Last resort: PATH lookup.
     command -v "$name" 2>/dev/null || true
 }
+log "staging binaries"
 for name in "${need_bins[@]}"; do
     b=$(resolve_bin "$name")
     [ -n "$b" ] || { warn "missing $name — skipping"; continue; }
@@ -74,6 +77,7 @@ copy_lib() {
     fi
 }
 
+log "resolving library dependencies"
 for b in "$STAGING"/{bin,sbin}/*; do
     [ -x "$b" ] || continue
     while read -r _ _ path _; do
@@ -96,7 +100,9 @@ mkdir -p "$STAGING$moddir"
 # Always copy depmod metadata.
 cp -a "$moddir"/modules.* "$STAGING$moddir/" 2>/dev/null || true
 # Walk each requested module and pull it + its dependencies.
+log "copying kernel modules for $KVER"
 for mod in "${modules[@]}"; do
+    log "  module: $mod"
     while read -r _ path; do
         [ -n "$path" ] || continue
         install -Dm644 "$path" "$STAGING$path"
