@@ -128,6 +128,9 @@ b_patch() {
 
 b_sed() {
     ./configure --prefix=/usr --host="$LFS_TGT"
+    # Pre-stamp the help2man-generated manpage; the cross-built sed binary
+    # can't run on the host so help2man would fail.
+    touch doc/sed.1
     make
     make DESTDIR="$LFS" install
 }
