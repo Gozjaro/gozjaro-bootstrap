@@ -57,5 +57,6 @@ chroot "$LFS" /usr/bin/env -i \
         ./build.sh 60-final-system
         ./build.sh 70-system-config
         ./build.sh 80-kernel
+        ./build.sh 85-initramfs
     '
 log "chroot stages returned successfully"

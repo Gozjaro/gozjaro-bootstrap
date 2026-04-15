@@ -34,6 +34,8 @@ STAGES=(
   60-final-system
   70-system-config
   80-kernel
+  85-initramfs
+  90-live-iso
 )
 
 # Stages that must be executed as the lfs user.
@@ -47,7 +49,7 @@ stage_is_lfs_user() {
 # Stages that run inside the chroot.
 stage_is_chroot() {
     case "$1" in
-        51-chroot-tools|60-final-system|70-system-config|80-kernel) return 0 ;;
+        51-chroot-tools|60-final-system|70-system-config|80-kernel|85-initramfs) return 0 ;;
         *) return 1 ;;
     esac
 }
