@@ -103,8 +103,12 @@ cp -a "$moddir"/modules.* "$STAGING$moddir/" 2>/dev/null || true
 log "copying kernel modules for $KVER"
 for mod in "${modules[@]}"; do
     log "  module: $mod"
-    while read -r _ path; do
-        [ -n "$path" ] || continue
+    while read -r verb path; do
+        # `modprobe -D` emits "insmod /path/to.ko.xz" for real modules and
+        # "builtin <name>" for modules compiled into the kernel — skip the
+        # latter, they're already in vmlinuz.
+        [ "$verb" = "insmod" ] || continue
+        [ -n "$path" ] && [ -f "$path" ] || continue
         install -Dm644 "$path" "$STAGING$path"
     done < <(modprobe -D -S "$KVER" "$mod" 2>/dev/null || true)
 done
