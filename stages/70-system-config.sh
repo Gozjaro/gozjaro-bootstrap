@@ -106,17 +106,65 @@ cat > /etc/shells <<'EOF'
 EOF
 
 # --- /etc/fstab --------------------------------------------------------------
-if [ ! -s /etc/fstab ]; then
-    cat > /etc/fstab <<EOF
-# <device>        <mount>   <type>  <options>                   <dump> <fsck>
-LABEL=lfs         /         ext4    defaults                        1      1
-proc              /proc     proc    nosuid,noexec,nodev             0      0
-sysfs             /sys      sysfs   nosuid,noexec,nodev             0      0
-devpts            /dev/pts  devpts  gid=5,mode=620                  0      0
-tmpfs             /run      tmpfs   defaults                        0      0
-devtmpfs          /dev      devtmpfs mode=0755,nosuid               0      0
-tmpfs             /dev/shm  tmpfs   nosuid,nodev                    0      0
+# Live-ISO-friendly: root is overlayfs over squashfs (no disk to fsck),
+# /sys/fs/cgroup must be listed or lfs-bootscripts' mountvirtfs fails.
+cat > /etc/fstab <<'EOF'
+# <device>        <mount>         <type>    <options>                 <dump> <fsck>
+overlay           /               overlay   defaults                       0      0
+proc              /proc           proc      nosuid,noexec,nodev            0      0
+sysfs             /sys            sysfs     nosuid,noexec,nodev            0      0
+devpts            /dev/pts        devpts    gid=5,mode=620                 0      0
+tmpfs             /run            tmpfs     defaults                       0      0
+devtmpfs          /dev            devtmpfs  mode=0755,nosuid               0      0
+tmpfs             /dev/shm        tmpfs     nosuid,nodev                   0      0
+cgroup2           /sys/fs/cgroup  cgroup2   nosuid,nodev,noexec            0      0
 EOF
+
+# --- udev binary path fixup --------------------------------------------------
+# lfs-bootscripts' S10udev calls /sbin/udevd and /sbin/udevadm. On merged-usr
+# layouts eudev may have installed under /usr/bin or /usr/sbin; symlink so
+# both paths work regardless.
+for bin in udevd udevadm; do
+    if [ ! -e "/sbin/$bin" ]; then
+        for src in "/usr/sbin/$bin" "/usr/bin/$bin" "/bin/$bin" "/lib/udev/$bin" "/lib/systemd/systemd-$bin"; do
+            if [ -x "$src" ]; then
+                ln -sf "$src" "/sbin/$bin"
+                log "symlinked /sbin/$bin -> $src"
+                break
+            fi
+        done
+    fi
+done
+# If we still don't have udevd, warn loudly — live boot will show failures
+# but sysvinit will keep going (we patched S10udev behaviour below).
+[ -e /sbin/udevd ] || warn "udevd not found anywhere; udev will be disabled on boot"
+
+# --- defang bootscripts that assume a real disk ------------------------------
+# Skip 'Mounting root filesystem read-only' and fsck — there is no disk.
+if [ -f /etc/rc.d/init.d/mountfs ]; then
+    # Neuter by making it a no-op script (keep the file so the symlinks resolve).
+    cat > /etc/rc.d/init.d/mountfs <<'EOF'
+#!/bin/bash
+# Live-ISO: root is overlay, nothing to remount.
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/mountfs
+fi
+if [ -f /etc/rc.d/init.d/checkfs ]; then
+    cat > /etc/rc.d/init.d/checkfs <<'EOF'
+#!/bin/bash
+# Live-ISO: no filesystem to check.
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/checkfs
+fi
+if [ -f /etc/rc.d/init.d/swap ]; then
+    cat > /etc/rc.d/init.d/swap <<'EOF'
+#!/bin/bash
+# Live-ISO: no swap.
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/swap
 fi
 
 # --- os-release --------------------------------------------------------------
