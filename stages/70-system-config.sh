@@ -166,6 +166,24 @@ exit 0
 EOF
     chmod 755 /etc/rc.d/init.d/swap
 fi
+# eudev was never built into the system, so /sbin/udevd doesn't exist.
+# devtmpfs (mounted by the kernel at boot) already populates /dev with
+# the nodes we need — the udev bootscript is unnecessary for a live boot.
+if [ -f /etc/rc.d/init.d/udev ]; then
+    cat > /etc/rc.d/init.d/udev <<'EOF'
+#!/bin/bash
+# Live-ISO: no udev; devtmpfs provides /dev.
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/udev
+fi
+if [ -f /etc/rc.d/init.d/udev_retry ]; then
+    cat > /etc/rc.d/init.d/udev_retry <<'EOF'
+#!/bin/bash
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/udev_retry
+fi
 
 # --- os-release --------------------------------------------------------------
 cat > /etc/os-release <<EOF
