@@ -517,8 +517,9 @@ b_iproute2() {
 
 b_kbd() {
     apply_patch "$PWD" "kbd-2.7.1-backspace-1.patch" || true
-    sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure
-    sed -i 's/resizecons.8 //' contrib/man/man8/Makefile.in
+    [ -f configure ] && sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure || true
+    [ -f contrib/man/man8/Makefile.in ] && \
+        sed -i 's/resizecons.8 //' contrib/man/man8/Makefile.in || true
     ./configure --prefix=/usr --disable-vlock
     make && make install
 }
