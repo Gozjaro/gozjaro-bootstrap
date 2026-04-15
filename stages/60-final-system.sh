@@ -430,6 +430,10 @@ AC_DEFUN([GTK_DOC_CHECK],
   AC_SUBST([GTKDOC_MKPDF])
 ])
 GTKM4
+    # kmod ships ltmain.sh from a -dirty libtool snapshot that mismatches the
+    # installed libtool 2.5.4. Sync them so LT_INIT at run-time agrees with
+    # the macros baked into aclocal.m4.
+    libtoolize --force --copy --install 2>/dev/null || true
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
         --disable-manpages
     # Also drop an empty gtk-doc.make in case Makefile.am still -include's it
