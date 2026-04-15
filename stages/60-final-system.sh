@@ -430,13 +430,14 @@ AC_DEFUN([GTK_DOC_CHECK],
   AC_SUBST([GTKDOC_MKPDF])
 ])
 GTKM4
-    # kmod ships ltmain.sh from a -dirty libtool snapshot that mismatches the
-    # installed libtool 2.5.4. Sync them so LT_INIT at run-time agrees with
-    # the macros baked into aclocal.m4.
-    libtoolize --force --copy --install 2>/dev/null || true
-    # libtoolize may replace build-aux without restoring all helpers
-    # (e.g. `compile`). Pull them from automake.
-    automake --add-missing --copy --force-missing 2>/dev/null || true
+    # Pre-seed a stub for libkmod/docs/gtk-doc.make (referenced by
+    # Makefile.am via include; autoreconf needs it to exist on disk).
+    install -Dm644 /dev/null libkmod/docs/gtk-doc.make 2>/dev/null || true
+    # kmod ships ltmain.sh + aclocal.m4 from a 2.5.4.1-baa1-dirty libtool
+    # snapshot that fails the runtime version check against installed
+    # libtool 2.5.4. Regenerate everything from the host autotools; our
+    # m4/gtk-doc.m4 stub lets aclocal succeed without gtk-doc.
+    autoreconf -fi
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
         --disable-manpages
     # Also drop an empty gtk-doc.make in case Makefile.am still -include's it
