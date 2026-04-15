@@ -167,9 +167,28 @@ chmod 755 "$STAGING/init"
 
 # --- pack the cpio.gz ---------------------------------------------------------
 out="/boot/initrd-${KVER}-gozjaro.img"
-( cd "$STAGING" && find . -print0 | cpio --null --create --format=newc 2>/dev/null ) \
-    | gzip -9 > "$out"
-chmod 644 "$out"
 
-log "wrote $out ($(du -h "$out" | cut -f1))"
+if command -v cpio >/dev/null 2>&1; then
+    log "packing $out with in-chroot cpio"
+    ( cd "$STAGING" && find . -print0 | cpio --null --create --format=newc ) \
+        | gzip -9 > "$out"
+    chmod 644 "$out"
+    log "wrote $out ($(du -h "$out" | cut -f1))"
+else
+    # cpio isn't part of the LFS package set. Hand the staging tree off to the
+    # host (stage 90 / host side) by parking it under /boot.
+    handoff="/boot/initramfs-stage-${KVER}"
+    rm -rf "$handoff"
+    log "cpio not installed; handing staging tree off to host at $handoff"
+    cp -a "$STAGING" "$handoff"
+    # Drop a tiny README so stage 90 knows what to do.
+    cat > "${handoff}.README" <<EOF
+This directory is a prepared initramfs root built inside the chroot.
+On the host, pack it with:
+  ( cd "$handoff" && find . -print0 | cpio --null --create --format=newc ) \\
+      | gzip -9 > "/boot/initrd-${KVER}-gozjaro.img"
+Stage 90 (90-live-iso.sh) does this automatically.
+EOF
+fi
+
 mark_done 85-initramfs

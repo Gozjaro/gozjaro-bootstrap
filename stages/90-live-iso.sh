@@ -22,9 +22,23 @@ start_log 90-live-iso
 require_root
 [ -d "$LFS" ] || die "LFS=$LFS does not exist"
 
-for tool in mksquashfs xorriso grub-mkrescue; do
+for tool in mksquashfs xorriso grub-mkrescue cpio gzip; do
     command -v "$tool" >/dev/null 2>&1 || die "missing host tool: $tool"
 done
+
+# --- finish any initramfs handed off by stage 85 -----------------------------
+shopt -s nullglob
+for stage_dir in "$LFS"/boot/initramfs-stage-*; do
+    [ -d "$stage_dir" ] || continue
+    kver=${stage_dir##*initramfs-stage-}
+    target="$LFS/boot/initrd-${kver}-gozjaro.img"
+    log "packing $target from $stage_dir"
+    ( cd "$stage_dir" && find . -print0 | cpio --null --create --format=newc ) \
+        | gzip -9 > "$target"
+    chmod 644 "$target"
+    rm -rf "$stage_dir" "${stage_dir}.README"
+done
+shopt -u nullglob
 
 # --- locate kernel + initrd inside $LFS/boot ---------------------------------
 shopt -s nullglob
