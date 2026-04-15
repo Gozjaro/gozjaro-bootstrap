@@ -35,6 +35,32 @@ build_kernel() {
         make defconfig
     fi
 
+    # Force options needed by the live ISO boot path. Built-in (=y) so the
+    # initramfs doesn't need to carry or load them — simpler and panic-proof.
+    log "enforcing live-ISO kernel options"
+    ./scripts/config \
+        --enable SQUASHFS \
+        --enable SQUASHFS_XZ \
+        --enable SQUASHFS_ZSTD \
+        --enable SQUASHFS_XATTR \
+        --enable ISO9660_FS \
+        --enable JOLIET \
+        --enable ZISOFS \
+        --enable OVERLAY_FS \
+        --enable BLK_DEV_LOOP \
+        --enable EXT4_FS \
+        --enable DEVTMPFS \
+        --enable DEVTMPFS_MOUNT \
+        --enable TMPFS \
+        --enable TMPFS_POSIX_ACL \
+        --enable BLK_DEV_SR \
+        --enable CDROM \
+        --enable USB_STORAGE \
+        --enable USB_UAS \
+        --enable SCSI \
+        --enable BLK_DEV_SD
+    make olddefconfig
+
     make
     make modules_install
 
