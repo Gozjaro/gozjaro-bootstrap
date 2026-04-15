@@ -7,11 +7,12 @@
 start_log 50-chroot-prep
 require_root
 
-# Change ownership of the built tree back to root:root.
-chown -R root:root "$LFS"/{usr,lib,var,etc,bin,sbin,tools,sources}
-case $(uname -m) in
-    x86_64) [ -d "$LFS/lib64" ] && chown -R root:root "$LFS/lib64" ;;
-esac
+# Change ownership of the built tree back to root:root. Some entries (e.g.
+# /tools, /lib64) only exist on certain hosts/stages — chown only what's there.
+for d in usr lib var etc bin sbin tools sources lib64; do
+    [ -e "$LFS/$d" ] || continue
+    chown -R root:root "$LFS/$d"
+done
 
 # Prepare virtual kernel file systems.
 mkdir -pv "$LFS"/{dev,proc,sys,run}
