@@ -468,8 +468,17 @@ b_jinja2() {
 }
 
 b_coreutils_final() {
-    apply_patch "$PWD" "coreutils-9.6-i18n-1.patch" || true
-    autoreconf -fiv
+    # The i18n patch is a nice-to-have (adds multibyte locale support to a
+    # handful of tools). It requires a subsequent `autoreconf -fiv`, which in
+    # turn needs gnulib macros that aren't always bundled in the tarball.
+    # Make it opt-in via GOZJARO_COREUTILS_I18N=1 so the core build is robust.
+    if [ "${GOZJARO_COREUTILS_I18N:-0}" = "1" ] && \
+       [ -f "$SOURCES_DIR/coreutils-9.6-i18n-1.patch" ]; then
+        apply_patch "$PWD" "coreutils-9.6-i18n-1.patch"
+        autoreconf -fiv
+    else
+        log "skip coreutils i18n patch (set GOZJARO_COREUTILS_I18N=1 to enable)"
+    fi
     FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr \
         --enable-no-install-program=kill,uptime
     make && make install
