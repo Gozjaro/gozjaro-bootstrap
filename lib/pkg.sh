@@ -7,11 +7,20 @@
 # echoes the first matching tarball under $SOURCES_DIR (e.g. "binutils-").
 find_tarball() {
     local prefix="$1" f
+    # Case-sensitive first.
     for f in "$SOURCES_DIR/${prefix}"*.tar.*; do
         [ -e "$f" ] || continue
         printf '%s\n' "$f"
         return 0
     done
+    # Fallback: case-insensitive (handles e.g. Jinja2 vs jinja2).
+    f=$(shopt -s nocaseglob nullglob
+        files=( "$SOURCES_DIR/${prefix}"*.tar.* )
+        [ "${#files[@]}" -gt 0 ] && printf '%s\n' "${files[0]}" || true)
+    if [ -n "$f" ]; then
+        printf '%s\n' "$f"
+        return 0
+    fi
     die "no tarball for prefix '$prefix' in $SOURCES_DIR"
 }
 
