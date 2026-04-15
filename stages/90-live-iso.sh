@@ -64,10 +64,17 @@ cp -v "$KERNEL" "$ISOROOT/boot/vmlinuz"
 cp -v "$INITRD" "$ISOROOT/boot/initrd.img"
 
 # --- build squashfs -----------------------------------------------------------
+# Strip static libs / leftover autotools test binaries before packing — avoids
+# bloating the squashfs with things a live system never needs.
+log "pruning static libs and *.la files from $LFS"
+find "$LFS/usr/lib" -maxdepth 3 -type f \( -name '*.a' -o -name '*.la' \) -delete 2>/dev/null || true
+
 log "creating squashfs from $LFS (this takes a while)"
+# -wildcards lets us use globs in exclusions (relative to $LFS).
 mksquashfs "$LFS" "$ISOROOT/live/filesystem.squashfs" \
     -comp xz \
     -noappend \
+    -wildcards \
     -e \
         "$LFS/sources" \
         "$LFS/tools" \
@@ -78,7 +85,16 @@ mksquashfs "$LFS" "$ISOROOT/live/filesystem.squashfs" \
         "$LFS/tmp" \
         "$LFS/gozjaro" \
         "$LFS/var/gozjaro" \
-        "$LFS/.gozjaro-chroot"
+        "$LFS/.gozjaro-chroot" \
+        "$LFS/boot" \
+        "$LFS/usr/share/doc" \
+        "$LFS/usr/share/info" \
+        "$LFS/usr/share/man" \
+        "$LFS/usr/share/locale" \
+        "$LFS/usr/share/gtk-doc" \
+        "$LFS/usr/share/help" \
+        "$LFS/usr/include" \
+        "$LFS/usr/src"
 
 # --- grub.cfg -----------------------------------------------------------------
 cat > "$ISOROOT/boot/grub/grub.cfg" <<'GRUB'
