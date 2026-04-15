@@ -410,13 +410,28 @@ b_openssl() {
 }
 
 b_kmod() {
+    # kmod 34's tarball references GTK_DOC_CHECK but omits m4/gtk-doc.m4.
+    # Automake's auto-remake (triggered by mtime ordering in the tarball)
+    # re-invokes aclocal, which then errors. Drop a minimal stub so aclocal
+    # can resolve the macro; gtk-doc itself stays disabled because glib /
+    # gobject aren't present in a bare LFS.
+    mkdir -p m4
+    cat > m4/gtk-doc.m4 <<'GTKM4'
+AC_DEFUN([GTK_DOC_CHECK],
+[
+  AM_CONDITIONAL([ENABLE_GTK_DOC],     [false])
+  AM_CONDITIONAL([GTK_DOC_USE_LIBTOOL],[false])
+  AM_CONDITIONAL([GTK_DOC_USE_REBASE], [false])
+  AM_CONDITIONAL([GTK_DOC_BUILD_HTML], [false])
+  AM_CONDITIONAL([GTK_DOC_BUILD_PDF],  [false])
+  AC_SUBST([GTKDOC_CHECK])
+  AC_SUBST([GTKDOC_CHECK_PATH])
+  AC_SUBST([GTKDOC_REBASE])
+  AC_SUBST([GTKDOC_MKPDF])
+])
+GTKM4
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
-        --disable-manpages --disable-gtk-doc
-    # Prevent automake auto-remake: kmod references GTK_DOC_CHECK but does not
-    # ship m4/gtk-doc.m4, so aclocal blows up. Stamp the generated files newer
-    # than their inputs.
-    find . -type f \( -name aclocal.m4 -o -name Makefile.in -o -name configure \
-        -o -name config.h.in -o -name '*.m4' \) -exec touch {} + 2>/dev/null || true
+        --disable-manpages
     make
     make install
     for t in depmod insmod modinfo modprobe rmmod; do
