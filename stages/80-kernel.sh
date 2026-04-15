@@ -58,7 +58,21 @@ build_kernel() {
         --enable USB_STORAGE \
         --enable USB_UAS \
         --enable SCSI \
-        --enable BLK_DEV_SD
+        --enable BLK_DEV_SD \
+        --enable EFI \
+        --enable EFI_STUB \
+        --enable EFI_MIXED \
+        --enable EFIVAR_FS \
+        --enable EFI_VARS_PSTORE \
+        --enable FB \
+        --enable FB_EFI \
+        --enable FB_VESA \
+        --enable FB_SIMPLE \
+        --enable FRAMEBUFFER_CONSOLE \
+        --enable FRAMEBUFFER_CONSOLE_DETECT_PRIMARY \
+        --enable SYSFB_SIMPLEFB \
+        --enable DRM \
+        --enable DRM_FBDEV_EMULATION
     make olddefconfig
 
     make

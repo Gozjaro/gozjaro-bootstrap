@@ -120,12 +120,17 @@ insmod efi_gop
 insmod efi_uga
 
 menuentry "Gozjaro Live" {
-    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE quiet
+    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 quiet
     initrd /boot/initrd.img
 }
 
 menuentry "Gozjaro Live (verbose)" {
-    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE
+    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 debug earlyprintk=efi
+    initrd /boot/initrd.img
+}
+
+menuentry "Gozjaro Live (nomodeset)" {
+    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 nomodeset
     initrd /boot/initrd.img
 }
 GRUB
