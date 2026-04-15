@@ -564,8 +564,18 @@ b_e2fsprogs() {
 }
 
 b_sysklogd() {
-    make
-    make install
+    # sysklogd 1.x shipped a bare Makefile; 2.x switched to autotools.
+    if [ -x ./configure ]; then
+        ./configure --prefix=/usr --sysconfdir=/etc --runstatedir=/run \
+            --without-logger
+        make
+        make install
+    elif [ -f Makefile ]; then
+        make
+        make install
+    else
+        die "sysklogd: no Makefile and no ./configure"
+    fi
     cat > /etc/syslog.conf <<'EOF'
 auth,authpriv.* -/var/log/auth.log
 *.*;auth,authpriv.none -/var/log/sys.log
