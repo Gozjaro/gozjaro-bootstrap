@@ -64,10 +64,12 @@ cp -v "$KERNEL" "$ISOROOT/boot/vmlinuz"
 cp -v "$INITRD" "$ISOROOT/boot/initrd.img"
 
 # --- build squashfs -----------------------------------------------------------
-# Strip static libs / leftover autotools test binaries before packing — avoids
-# bloating the squashfs with things a live system never needs.
-log "pruning static libs and *.la files from $LFS"
-find "$LFS/usr/lib" -maxdepth 3 -type f \( -name '*.a' -o -name '*.la' \) -delete 2>/dev/null || true
+# Strip leftover autotools .la files before packing. Do NOT touch .a files —
+# glibc ships essential static pieces (libc_nonshared.a, libpthread.a, ...)
+# that the linker needs at build time; deleting them breaks any later
+# kernel/toolchain rebuild against $LFS.
+log "pruning *.la files from $LFS"
+find "$LFS/usr/lib" -maxdepth 3 -type f -name '*.la' -delete 2>/dev/null || true
 
 log "creating squashfs from $LFS (this takes a while)"
 # -wildcards lets us use globs in exclusions (relative to $LFS).
