@@ -137,6 +137,8 @@ b_sed() {
 my $out;
 for (my $i = 0; $i < @ARGV; $i++) {
     if ($ARGV[$i] eq '-o' || $ARGV[$i] eq '--output') { $out = $ARGV[$i+1]; last; }
+    if ($ARGV[$i] =~ /^--output=(.*)$/) { $out = $1; last; }
+    if ($ARGV[$i] eq '-o' && $i+1 < @ARGV)  { $out = $ARGV[$i+1]; last; }
 }
 if ($out) { open(my $fh, '>', $out) and close $fh; }
 exit 0;
