@@ -177,6 +177,18 @@ exit 0
 EOF
     chmod 755 /etc/rc.d/init.d/udev
 fi
+if [ -f /etc/rc.d/init.d/cleanfs ]; then
+    # cleanfs walks /tmp, /var/run, /var/lock and fails on missing dirs in
+    # the fresh overlay. Ensure the dirs exist and make cleanfs tolerant.
+    cat > /etc/rc.d/init.d/cleanfs <<'EOF'
+#!/bin/bash
+# Live-ISO: ensure standard volatile dirs exist; do not attempt cleanup.
+mkdir -p /tmp /var/run /var/lock /var/log 2>/dev/null || true
+chmod 1777 /tmp 2>/dev/null || true
+exit 0
+EOF
+    chmod 755 /etc/rc.d/init.d/cleanfs
+fi
 if [ -f /etc/rc.d/init.d/udev_retry ]; then
     cat > /etc/rc.d/init.d/udev_retry <<'EOF'
 #!/bin/bash
