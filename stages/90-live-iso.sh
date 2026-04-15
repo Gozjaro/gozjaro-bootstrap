@@ -26,6 +26,15 @@ for tool in mksquashfs xorriso grub-mkrescue cpio gzip; do
     command -v "$tool" >/dev/null 2>&1 || die "missing host tool: $tool"
 done
 
+# Detect EFI support. grub-mkrescue silently emits a BIOS-only ISO if
+# /usr/lib/grub/x86_64-efi is missing; warn loudly so the user knows.
+if [ -d /usr/lib/grub/x86_64-efi ]; then
+    log "UEFI support: available (grub x86_64-efi modules present)"
+    command -v mformat >/dev/null 2>&1 || warn "mtools not installed — EFI image may fail; apt install mtools"
+else
+    warn "UEFI support: MISSING — install grub-efi-amd64-bin (or grub2-efi-x64-modules) for hybrid ISO"
+fi
+
 # --- finish any initramfs handed off by stage 85 -----------------------------
 shopt -s nullglob
 for stage_dir in "$LFS"/boot/initramfs-stage-*; do
@@ -105,7 +114,10 @@ set timeout=5
 insmod all_video
 insmod gfxterm
 insmod part_msdos
+insmod part_gpt
 insmod iso9660
+insmod efi_gop
+insmod efi_uga
 
 menuentry "Gozjaro Live" {
     linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE quiet
