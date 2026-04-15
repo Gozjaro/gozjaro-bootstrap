@@ -78,7 +78,7 @@ EOF
 
 b_zlib() {
     ./configure --prefix=/usr
-    make && make install
+    make; make install
     rm -fv /usr/lib/libz.a
 }
 
@@ -101,7 +101,7 @@ b_bzip2() {
 
 b_xz_final() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/xz-5.6.4
-    make && make install
+    make; make install
 }
 
 b_zstd() {
@@ -111,7 +111,7 @@ b_zstd() {
 
 b_file_final() {
     ./configure --prefix=/usr
-    make && make install
+    make; make install
 }
 
 b_readline() {
@@ -127,12 +127,12 @@ b_m4_final() { ./configure --prefix=/usr && make && make install; }
 
 b_bc() {
     CC=gcc ./configure --prefix=/usr -G -O3 -r
-    make && make install
+    make; make install
 }
 
 b_flex() {
     ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4 --disable-static
-    make && make install
+    make; make install
     ln -sv flex   /usr/bin/lex
     ln -sv flex.1 /usr/share/man/man1/lex.1 || true
 }
@@ -155,7 +155,7 @@ b_expect() {
     python3 -c 'print("ok")' >/dev/null
     ./configure --prefix=/usr --with-tcl=/usr/lib --enable-shared --disable-rpath \
         --mandir=/usr/share/man --with-tclinclude=/usr/include
-    make && make install
+    make; make install
     ln -svf expect5.45.4/libexpect5.45.4.so /usr/lib
 }
 
@@ -170,7 +170,7 @@ b_dejagnu() {
 
 b_pkgconf() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/pkgconf-2.3.0
-    make && make install
+    make; make install
     ln -sv pkgconf /usr/bin/pkg-config
     ln -sv pkgconf.1 /usr/share/man/man1/pkg-config.1 || true
 }
@@ -195,29 +195,29 @@ b_binutils_final() {
 
 b_gmp() {
     ./configure --prefix=/usr --enable-cxx --disable-static --docdir=/usr/share/doc/gmp-6.3.0
-    make && make install
+    make; make install
 }
 
 b_mpfr() {
     sed -e 's/+01,03,13/+01,02,03,13/' -e 's/LC_ALL=\(...\)/&.UTF-8/g' \
         -i tests/tst-locale.c || true
     ./configure --prefix=/usr --disable-static --enable-thread-safe --docdir=/usr/share/doc/mpfr-4.2.1
-    make && make install
+    make; make install
 }
 
 b_mpc() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/mpc-1.3.1
-    make && make install
+    make; make install
 }
 
 b_attr() {
     ./configure --prefix=/usr --disable-static --sysconfdir=/etc --docdir=/usr/share/doc/attr-2.5.2
-    make && make install
+    make; make install
 }
 
 b_acl() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/acl-2.3.2
-    make && make install
+    make; make install
 }
 
 b_libcap() {
@@ -232,7 +232,7 @@ b_libxcrypt() {
         --enable-obsolete-api=no \
         --disable-static \
         --disable-failure-tokens
-    make && make install
+    make; make install
 }
 
 b_shadow() {
@@ -301,19 +301,19 @@ b_psmisc()    { ./configure --prefix=/usr && make && make install; }
 
 b_gettext_final() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/gettext-0.24
-    make && make install
+    make; make install
     chmod -v 0755 /usr/lib/preloadable_libintl.so 2>/dev/null || true
 }
 
 b_bison_final() {
     ./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.8.2
-    make && make install
+    make; make install
 }
 
 b_grep_final() {
     sed -i "s/echo/#echo/" src/egrep.sh || true
     ./configure --prefix=/usr
-    make && make install
+    make; make install
 }
 
 b_bash_final() {
@@ -326,29 +326,29 @@ b_bash_final() {
         --without-bash-malloc \
         --with-installed-readline \
         --docdir=/usr/share/doc/bash-5.2.37
-    make && make install
+    make; make install
     ln -sfv bash /bin/sh
 }
 
 b_libtool() {
     ./configure --prefix=/usr
-    make && make install
+    make; make install
     rm -fv /usr/lib/libltdl.a
 }
 
 b_gdbm() {
     ./configure --prefix=/usr --disable-static --enable-libgdbm-compat
-    make && make install
+    make; make install
 }
 
 b_gperf() {
     ./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.1
-    make && make install
+    make; make install
 }
 
 b_expat() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/expat-2.7.5
-    make && make install
+    make; make install
 }
 
 b_inetutils() {
@@ -357,13 +357,13 @@ b_inetutils() {
         --localstatedir=/var \
         --disable-logger --disable-whois --disable-rcp --disable-rexec --disable-rlogin --disable-rsh \
         --disable-servers
-    make && make install
+    make; make install
     mv -v /usr/{,s}bin/ifconfig 2>/dev/null || true
 }
 
 b_less() {
     ./configure --prefix=/usr --sysconfdir=/etc
-    make && make install
+    make; make install
 }
 
 b_perl_final() {
@@ -383,13 +383,13 @@ b_perl_final() {
         -Dpager="/usr/bin/less -isR" \
         -Duseshrplib \
         -Dusethreads
-    make && make install
+    make; make install
     unset BUILD_ZLIB BUILD_BZIP2
 }
 
 b_xml_parser() {
     perl Makefile.PL
-    make && make install
+    make; make install
 }
 
 b_intltool() {
@@ -411,8 +411,14 @@ b_openssl() {
 
 b_kmod() {
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
-        --disable-manpages
-    make && make install
+        --disable-manpages --disable-gtk-doc
+    # Prevent automake auto-remake: kmod references GTK_DOC_CHECK but does not
+    # ship m4/gtk-doc.m4, so aclocal blows up. Stamp the generated files newer
+    # than their inputs.
+    find . -type f \( -name aclocal.m4 -o -name Makefile.in -o -name configure \
+        -o -name config.h.in -o -name '*.m4' \) -exec touch {} + 2>/dev/null || true
+    make
+    make install
     for t in depmod insmod modinfo modprobe rmmod; do
         ln -sfv ../bin/kmod "/usr/sbin/$t"
     done
@@ -429,7 +435,7 @@ b_elfutils() {
 
 b_libffi() {
     ./configure --prefix=/usr --disable-static --with-gcc-arch=native
-    make && make install
+    make; make install
 }
 
 b_python_final() {
@@ -437,7 +443,7 @@ b_python_final() {
         --enable-shared \
         --with-system-expat \
         --enable-optimizations
-    make && make install
+    make; make install
     install -v -dm755 /usr/lib/python3.13/site-packages
 }
 
@@ -481,7 +487,7 @@ b_coreutils_final() {
     fi
     FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr \
         --enable-no-install-program=kill,uptime
-    make && make install
+    make; make install
     mv -v /usr/bin/chroot /usr/sbin 2>/dev/null || true
     mv -v /usr/share/man/man1/chroot.1 /usr/share/man/man8/chroot.8 2>/dev/null || true
     sed -i 's/"1"/"8"/' /usr/share/man/man8/chroot.8 2>/dev/null || true
@@ -497,7 +503,7 @@ b_gawk_final()      { sed -i 's/extras//' Makefile.in; ./configure --prefix=/usr
 
 b_findutils_final() {
     ./configure --prefix=/usr --localstatedir=/var/lib/locate
-    make && make install
+    make; make install
 }
 
 b_groff() {
@@ -521,7 +527,7 @@ b_kbd() {
     [ -f contrib/man/man8/Makefile.in ] && \
         sed -i 's/resizecons.8 //' contrib/man/man8/Makefile.in || true
     ./configure --prefix=/usr --disable-vlock
-    make && make install
+    make; make install
 }
 
 b_libpipeline()    { ./configure --prefix=/usr && make && make install; }
@@ -533,7 +539,7 @@ b_texinfo_final()  { ./configure --prefix=/usr && make && make install; }
 b_vim() {
     echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
     ./configure --prefix=/usr
-    make && make install
+    make; make install
     ln -sv vim /usr/bin/vi
     for L in /usr/share/man/{,*/}man1/vim.1; do
         [ -f "$L" ] && ln -sv vim.1 "$(dirname "$L")/vi.1"
@@ -543,7 +549,7 @@ b_vim() {
 
 b_procps() {
     ./configure --prefix=/usr --docdir=/usr/share/doc/procps-ng-4.0.5 --disable-static --disable-kill
-    make && make install
+    make; make install
 }
 
 b_util_linux_final() {
@@ -552,14 +558,14 @@ b_util_linux_final() {
         --disable-pylibmount --disable-static --disable-liblastlog2 \
         --without-python --docdir=/usr/share/doc/util-linux-2.40.4 \
         ADJTIME_PATH=/var/lib/hwclock/adjtime
-    make && make install
+    make; make install
 }
 
 b_e2fsprogs() {
     mkdir -v build && cd build
     ../configure --prefix=/usr --sysconfdir=/etc --enable-elf-shlibs --disable-libblkid \
         --disable-libuuid --disable-uuidd --disable-fsck
-    make && make install
+    make; make install
     rm -fv /usr/lib/{libcom_err,libe2p,libext2fs,libss}.a
 }
 
