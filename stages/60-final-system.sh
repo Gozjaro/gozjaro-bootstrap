@@ -317,7 +317,11 @@ b_grep_final() {
 }
 
 b_bash_final() {
-    apply_patch "$PWD" "bash-5.2.37-upstream_fixes-1.patch" || true
+    if [ -f "$SOURCES_DIR/bash-5.2.37-upstream_fixes-1.patch" ]; then
+        apply_patch "$PWD" "bash-5.2.37-upstream_fixes-1.patch"
+    else
+        log "skip optional bash upstream-fixes patch (not present)"
+    fi
     ./configure --prefix=/usr \
         --without-bash-malloc \
         --with-installed-readline \
