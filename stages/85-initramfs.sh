@@ -36,13 +36,29 @@ ln -s bin "$STAGING/usr"   2>/dev/null || true   # tiny merged-usr inside ramfs
 
 # --- copy a small set of binaries --------------------------------------------
 need_bins=(
-    /bin/bash /bin/mount /bin/umount /bin/mkdir /bin/sleep /bin/cat /bin/ls
-    /bin/echo /bin/ln /bin/cp /bin/mv /bin/rm /bin/sed /bin/grep /bin/findmnt
-    /sbin/blkid /sbin/switch_root /sbin/modprobe /sbin/insmod /sbin/losetup
+    bash mount umount mkdir sleep cat ls echo ln cp mv rm sed grep findmnt
+    blkid switch_root modprobe insmod losetup kmod
 )
-for b in "${need_bins[@]}"; do
-    [ -x "$b" ] || { warn "missing $b — skipping"; continue; }
-    install -Dm755 "$b" "$STAGING$b"
+# Resolve each name against common locations (covers merged-usr layouts where
+# /sbin is a symlink into /usr/bin).
+resolve_bin() {
+    local name="$1" p
+    for p in "/bin/$name" "/usr/bin/$name" "/sbin/$name" "/usr/sbin/$name"; do
+        [ -x "$p" ] && { printf '%s\n' "$p"; return 0; }
+    done
+    # Last resort: PATH lookup.
+    command -v "$name" 2>/dev/null || true
+}
+for name in "${need_bins[@]}"; do
+    b=$(resolve_bin "$name")
+    [ -n "$b" ] || { warn "missing $name — skipping"; continue; }
+    # Strip leading slash then install under the same path inside STAGING,
+    # but normalise /usr/bin → /bin so the initramfs PATH (/bin:/sbin) works.
+    dest="/bin/$name"
+    case "$name" in
+        blkid|switch_root|modprobe|insmod|losetup|kmod) dest="/sbin/$name" ;;
+    esac
+    install -Dm755 "$b" "$STAGING$dest"
 done
 
 # --- copy the libraries each binary needs ------------------------------------
