@@ -131,8 +131,8 @@ b_sed() {
     # Cross-built sed/sed cannot execute on the host, so help2man fails
     # while regenerating doc/sed.1. Replace help2man with a no-op for this
     # build; the manpage shipped in the tarball is good enough.
-    make HELP2MAN=true
-    make DESTDIR="$LFS" HELP2MAN=true install
+    make HELP2MAN=/bin/true
+    make DESTDIR="$LFS" HELP2MAN=/bin/true install
 }
 
 b_tar() {
