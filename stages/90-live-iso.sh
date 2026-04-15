@@ -104,8 +104,10 @@ GRUB
 # --- assemble ISO -------------------------------------------------------------
 OUT="$GOZJARO_ROOT/gozjaro-live.iso"
 log "writing $OUT"
-grub-mkrescue --volid=GOZJARO_LIVE -o "$OUT" "$ISOROOT" \
-    -- -volid GOZJARO_LIVE 2>&1 | tail -n 20 || die "grub-mkrescue failed"
+grub-mkrescue -o "$OUT" "$ISOROOT" -- -volid GOZJARO_LIVE \
+    2>&1 | tail -n 20
+# tail eats the exit status, so check the produced file.
+[ -s "$OUT" ] || die "grub-mkrescue failed (no/empty $OUT)"
 
 chmod 644 "$OUT"
 log "live ISO ready: $OUT ($(du -h "$OUT" | cut -f1))"
