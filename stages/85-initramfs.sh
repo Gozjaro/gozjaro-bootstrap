@@ -164,8 +164,22 @@ mount --move /run/livecd  /run/newroot/run/livecd
 mount --move /run/squashfs /run/newroot/run/squashfs
 mount --move /run/overlay  /run/newroot/run/overlay
 
+# Carry the API filesystems across — without /dev/console sysvinit exits
+# immediately and the kernel panics ("Attempted to kill init").
+mkdir -p /run/newroot/dev /run/newroot/proc /run/newroot/sys
+mount --move /dev  /run/newroot/dev
+mount --move /proc /run/newroot/proc
+mount --move /sys  /run/newroot/sys
+
 echo "[gozjaro-initramfs] switching root"
-exec switch_root /run/newroot /sbin/init
+if [ ! -x /run/newroot/sbin/init ]; then
+    echo "[gozjaro-initramfs] /sbin/init missing in newroot — dropping to shell"
+    exec /bin/bash
+fi
+exec switch_root /run/newroot /sbin/init || {
+    echo "[gozjaro-initramfs] switch_root failed — dropping to shell"
+    exec /bin/bash
+}
 INIT
 chmod 755 "$STAGING/init"
 
