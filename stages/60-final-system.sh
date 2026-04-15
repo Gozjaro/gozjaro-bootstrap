@@ -432,8 +432,15 @@ AC_DEFUN([GTK_DOC_CHECK],
 GTKM4
     ./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib \
         --disable-manpages
-    make
-    make install
+    # Also drop an empty gtk-doc.make in case Makefile.am still -include's it
+    # during auto-remake.
+    mkdir -p libkmod/docs
+    : > libkmod/docs/gtk-doc.make
+    # Neutralise the autotools auto-remake rules: we've already run configure,
+    # we don't want make re-running aclocal/autoconf/automake.
+    local nore=(ACLOCAL=: AUTOCONF=: AUTOMAKE=: AUTOHEADER=: MAKEINFO=:)
+    make "${nore[@]}"
+    make "${nore[@]}" install
     for t in depmod insmod modinfo modprobe rmmod; do
         ln -sfv ../bin/kmod "/usr/sbin/$t"
     done
