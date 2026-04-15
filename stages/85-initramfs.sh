@@ -116,70 +116,83 @@ done
 # --- /init --------------------------------------------------------------------
 cat > "$STAGING/init" <<'INIT'
 #!/bin/bash
-set -e
-echo "[gozjaro-initramfs] starting"
+# NO set -e: a single failing command would silently kill PID 1 and panic.
+# Instead, we log every step and fall through to a rescue shell on error.
 
-mount -t proc     proc     /proc
-mount -t sysfs    sysfs    /sys
-mount -t devtmpfs devtmpfs /dev
+rescue() {
+    echo "[gozjaro-initramfs] FAIL: $*"
+    echo "[gozjaro-initramfs] dropping to rescue shell (exit to panic)"
+    exec /bin/bash
+}
 
+echo "[gozjaro-initramfs] starting (PID $$)"
+
+echo "[gozjaro-initramfs] mount /proc"
+mount -t proc     proc     /proc || rescue "mount /proc"
+echo "[gozjaro-initramfs] mount /sys"
+mount -t sysfs    sysfs    /sys  || rescue "mount /sys"
+echo "[gozjaro-initramfs] mount /dev (devtmpfs)"
+mount -t devtmpfs devtmpfs /dev  || rescue "mount /dev"
+
+echo "[gozjaro-initramfs] loading modules"
 for m in loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas; do
-    modprobe -q "$m" || true
+    modprobe -q "$m" && echo "  + $m" || echo "  - $m (missing/builtin)"
 done
 
-# Allow USB / SCSI to settle.
-for _ in 1 2 3 4 5 6 7 8 9 10; do
-    if blkid -L GOZJARO_LIVE >/dev/null 2>&1; then break; fi
+echo "[gozjaro-initramfs] waiting for GOZJARO_LIVE label"
+for i in 1 2 3 4 5 6 7 8 9 10; do
+    if blkid -L GOZJARO_LIVE >/dev/null 2>&1; then
+        echo "  found on try $i"; break
+    fi
     sleep 1
 done
 
-LIVE_DEV=$(blkid -L GOZJARO_LIVE || true)
+LIVE_DEV=$(blkid -L GOZJARO_LIVE 2>/dev/null)
 if [ -z "$LIVE_DEV" ]; then
-    # Last-ditch scan for /live/filesystem.squashfs.
+    echo "[gozjaro-initramfs] label not found, scanning block devices"
     for d in /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/sdc /dev/nvme0n1p1; do
         [ -b "$d" ] || continue
         mkdir -p /run/probe
         if mount -o ro "$d" /run/probe 2>/dev/null; then
             if [ -f /run/probe/live/filesystem.squashfs ]; then
-                LIVE_DEV="$d"; umount /run/probe; break
+                LIVE_DEV="$d"; umount /run/probe
+                echo "  found squashfs on $d"; break
             fi
             umount /run/probe
         fi
     done
 fi
-[ -n "$LIVE_DEV" ] || { echo "[gozjaro-initramfs] no live medium found"; exec /bin/bash; }
+[ -n "$LIVE_DEV" ] || rescue "no live medium found"
+echo "[gozjaro-initramfs] live device: $LIVE_DEV"
 
 mkdir -p /run/livecd /run/squashfs /run/overlay /run/newroot
-mount -o ro "$LIVE_DEV" /run/livecd
-mount -o loop,ro /run/livecd/live/filesystem.squashfs /run/squashfs
-mount -t tmpfs tmpfs /run/overlay
+mount -o ro "$LIVE_DEV" /run/livecd                              || rescue "mount livecd"
+mount -o loop,ro /run/livecd/live/filesystem.squashfs /run/squashfs \
+                                                                 || rescue "mount squashfs"
+mount -t tmpfs tmpfs /run/overlay                                || rescue "mount overlay tmpfs"
 mkdir -p /run/overlay/upper /run/overlay/work
 mount -t overlay overlay \
     -o lowerdir=/run/squashfs,upperdir=/run/overlay/upper,workdir=/run/overlay/work \
-    /run/newroot
+    /run/newroot                                                 || rescue "mount overlay"
 
-# Hand the squashfs/overlay mounts off to the new root.
+echo "[gozjaro-initramfs] overlay assembled; moving mounts"
 mkdir -p /run/newroot/run/livecd /run/newroot/run/squashfs /run/newroot/run/overlay
-mount --move /run/livecd  /run/newroot/run/livecd
-mount --move /run/squashfs /run/newroot/run/squashfs
-mount --move /run/overlay  /run/newroot/run/overlay
+mount --move /run/livecd   /run/newroot/run/livecd   || echo "  warn: move livecd"
+mount --move /run/squashfs /run/newroot/run/squashfs || echo "  warn: move squashfs"
+mount --move /run/overlay  /run/newroot/run/overlay  || echo "  warn: move overlay"
 
-# Carry the API filesystems across — without /dev/console sysvinit exits
-# immediately and the kernel panics ("Attempted to kill init").
 mkdir -p /run/newroot/dev /run/newroot/proc /run/newroot/sys
-mount --move /dev  /run/newroot/dev
-mount --move /proc /run/newroot/proc
-mount --move /sys  /run/newroot/sys
+mount --move /dev  /run/newroot/dev  || echo "  warn: move /dev"
+mount --move /proc /run/newroot/proc || echo "  warn: move /proc"
+mount --move /sys  /run/newroot/sys  || echo "  warn: move /sys"
 
-echo "[gozjaro-initramfs] switching root"
 if [ ! -x /run/newroot/sbin/init ]; then
-    echo "[gozjaro-initramfs] /sbin/init missing in newroot — dropping to shell"
-    exec /bin/bash
+    rescue "/sbin/init missing or not executable in newroot"
 fi
-exec switch_root /run/newroot /sbin/init || {
-    echo "[gozjaro-initramfs] switch_root failed — dropping to shell"
-    exec /bin/bash
-}
+
+echo "[gozjaro-initramfs] switching root to /sbin/init"
+exec switch_root /run/newroot /sbin/init
+rescue "switch_root returned"
 INIT
 chmod 755 "$STAGING/init"
 
