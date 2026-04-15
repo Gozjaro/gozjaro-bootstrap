@@ -434,8 +434,15 @@ GTKM4
         --disable-manpages
     # Also drop an empty gtk-doc.make in case Makefile.am still -include's it
     # during auto-remake.
-    mkdir -p libkmod/docs
-    : > libkmod/docs/gtk-doc.make
+    # Some auto-remake paths include gtk-doc.make. Drop empty stubs at every
+    # path any Makefile.am/.in references, plus the usual libkmod/docs spot.
+    install -Dm644 /dev/null libkmod/docs/gtk-doc.make 2>/dev/null || true
+    while IFS= read -r target; do
+        [ -n "$target" ] || continue
+        install -Dm644 /dev/null "$target" 2>/dev/null || true
+    done < <(grep -rhEo '[A-Za-z0-9_/.-]*gtk-doc\.make' \
+                --include='Makefile.am' --include='Makefile.in' . 2>/dev/null \
+             | sort -u)
     # Neutralise the autotools auto-remake rules: we've already run configure,
     # we don't want make re-running aclocal/autoconf/automake.
     local nore=(ACLOCAL=: AUTOCONF=: AUTOMAKE=: AUTOHEADER=: MAKEINFO=:)
