@@ -633,7 +633,7 @@ build_pkg 60.flit-core      "flit_core-"    b_flit_core
 build_pkg 60.wheel          "wheel-"        b_wheel
 build_pkg 60.setuptools     "setuptools-"   b_setuptools
 build_pkg 60.markupsafe     "markupsafe-"   b_markupsafe
-build_pkg 60.jinja2         "Jinja2-"       b_jinja2
+build_pkg 60.jinja2         "jinja2-"       b_jinja2
 build_pkg 60.coreutils-fin  "coreutils-"    b_coreutils_final
 build_pkg 60.check          "check-"        b_check
 build_pkg 60.diffutils-fin  "diffutils-"    b_diffutils_final
