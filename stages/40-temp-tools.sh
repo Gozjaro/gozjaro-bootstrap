@@ -128,11 +128,21 @@ b_patch() {
 
 b_sed() {
     ./configure --prefix=/usr --host="$LFS_TGT"
-    # Cross-built sed/sed cannot execute on the host, so help2man fails
-    # while regenerating doc/sed.1. Replace help2man with a no-op for this
-    # build; the manpage shipped in the tarball is good enough.
-    make HELP2MAN=/bin/true
-    make DESTDIR="$LFS" HELP2MAN=/bin/true install
+    # Cross-built sed/sed cannot execute on the host, so help2man (invoked
+    # as `perl $(HELP2MAN)`) fails while regenerating doc/sed.1. Substitute
+    # a tiny perl script that just creates the requested output file; the
+    # tarball already ships a usable doc/sed.1.
+    cat > /tmp/h2m-noop.pl <<'PERL'
+#!/usr/bin/perl
+my $out;
+for (my $i = 0; $i < @ARGV; $i++) {
+    if ($ARGV[$i] eq '-o' || $ARGV[$i] eq '--output') { $out = $ARGV[$i+1]; last; }
+}
+if ($out) { open(my $fh, '>', $out) and close $fh; }
+exit 0;
+PERL
+    make HELP2MAN=/tmp/h2m-noop.pl
+    make DESTDIR="$LFS" HELP2MAN=/tmp/h2m-noop.pl install
 }
 
 b_tar() {
