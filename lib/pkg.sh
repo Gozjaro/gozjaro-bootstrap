@@ -26,14 +26,25 @@ tarball_topdir() {
 extract_pkg() {
     local prefix="$1"
     local workdir="${2:-$SOURCES_DIR}"
-    local tarball top target
+    local tarball tops top target stem
     tarball=$(find_tarball "$prefix")
-    top=$(tarball_topdir "$tarball")
-    target="${workdir}/${top}"
-    if [ -d "$target" ]; then
-        rm -rf "$target"
+    # Distinct top-level path components in the archive.
+    tops=$(tar tf "$tarball" 2>/dev/null | awk -F/ 'NF{print $1}' | sort -u)
+    if [ "$(printf '%s\n' "$tops" | wc -l)" = "1" ]; then
+        top="$tops"
+        target="${workdir}/${top}"
+        [ -e "$target" ] && rm -rf "$target"
+        ( cd "$workdir" && tar -xf "$tarball" )
+    else
+        # Tarball has no single top dir (e.g. tzdata). Extract into a
+        # synthesised dir named after the tarball stem.
+        stem=$(basename "$tarball")
+        stem=${stem%.tar.*}
+        target="${workdir}/${stem}"
+        [ -e "$target" ] && rm -rf "$target"
+        mkdir -p "$target"
+        ( cd "$target" && tar -xf "$tarball" )
     fi
-    ( cd "$workdir" && tar -xf "$tarball" )
     printf '%s\n' "$target"
 }
 
