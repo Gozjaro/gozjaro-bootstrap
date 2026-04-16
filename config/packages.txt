@@ -47,6 +47,14 @@ https://mirrors.kernel.org/gnu/libtool/libtool-2.5.4.tar.xz
 https://github.com/besser82/libxcrypt/releases/download/v4.4.38/libxcrypt-4.4.38.tar.xz
 https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.13.4.tar.xz
 https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20250109.tar.xz
+https://curl.se/download/curl-8.12.1.tar.xz
+https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz
+https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.48.1.tar.xz
+https://download.samba.org/pub/rsync/src/rsync-3.4.1.tar.gz
+https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.9p1.tar.gz
+https://www.nano-editor.org/dist/v8/nano-8.3.tar.xz
+https://ftp.gnu.org/gnu/parted/parted-3.6.tar.xz
+https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
 https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
 https://mirrors.kernel.org/gnu/make/make-4.4.1.tar.gz
 https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
