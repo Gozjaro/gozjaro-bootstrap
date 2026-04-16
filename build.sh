@@ -34,6 +34,7 @@ STAGES=(
   60-final-system
   70-system-config
   75-live-tools
+  76-pacman
   80-kernel
   85-initramfs
   90-live-iso
@@ -50,7 +51,7 @@ stage_is_lfs_user() {
 # Stages that run inside the chroot.
 stage_is_chroot() {
     case "$1" in
-        51-chroot-tools|60-final-system|70-system-config|75-live-tools|80-kernel|85-initramfs) return 0 ;;
+        51-chroot-tools|60-final-system|70-system-config|75-live-tools|76-pacman|80-kernel|85-initramfs) return 0 ;;
         *) return 1 ;;
     esac
 }
