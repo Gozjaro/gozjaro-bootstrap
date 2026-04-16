@@ -609,38 +609,135 @@ b_e2fsprogs() {
     rm -fv /usr/lib/{libcom_err,libe2p,libext2fs,libss}.a
 }
 
-b_sysklogd() {
-    # sysklogd 1.x shipped a bare Makefile; 2.x switched to autotools.
-    if [ -x ./configure ]; then
-        ./configure --prefix=/usr --sysconfdir=/etc --runstatedir=/run \
-            --without-logger
-        make
-        make install
-    elif [ -f Makefile ]; then
-        make
-        make install
-    else
-        die "sysklogd: no Makefile and no ./configure"
-    fi
-    cat > /etc/syslog.conf <<'EOF'
-auth,authpriv.* -/var/log/auth.log
-*.*;auth,authpriv.none -/var/log/sys.log
-daemon.* -/var/log/daemon.log
-kern.* -/var/log/kern.log
-mail.* -/var/log/mail.log
-user.* -/var/log/user.log
-*.emerg *
-EOF
+b_meson() {
+    pip3 install --no-build-isolation --no-deps --prefix=/usr "$PWD"
 }
 
-b_sysvinit() {
-    apply_patch "$PWD" "sysvinit-3.14-consolidated-1.patch" || true
+b_ninja() {
+    python3 configure.py --bootstrap
+    install -vm755 ninja /usr/bin/
+}
+
+b_dbus() {
+    # Create system user/group for the message bus daemon.
+    groupadd -g 18 messagebus 2>/dev/null || true
+    useradd -c "D-Bus Message Daemon" -d /run/dbus \
+        -u 18 -g messagebus -s /bin/false messagebus 2>/dev/null || true
+
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+        --runstatedir=/run --enable-user-session --disable-static \
+        --disable-doxygen-docs --disable-xml-docs \
+        --with-systemdsystemunitdir=/usr/lib/systemd/system \
+        --with-systemduserunitdir=/usr/lib/systemd/user \
+        --with-system-socket=/run/dbus/system_bus_socket
     make
     make install
+    ln -sfv /etc/machine-id /var/lib/dbus/machine-id 2>/dev/null || true
 }
 
-b_lfs_bootscripts() {
-    make install
+b_systemd() {
+    local src="$1"
+
+    # Disable test-suite build probes that fail inside chroot.
+    sed -i -e 's/want_tests != .no./false/' test/meson.build 2>/dev/null || true
+
+    mkdir -v build && cd build
+
+    LANG=en_US.UTF-8 \
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        --wrap-mode=nofallback \
+        -Dmode=release \
+        -Ddev-kvm-mode=0660 \
+        -Dlink-udev-shared=true \
+        -Dlogind=true \
+        -Dvconsole=true \
+        -Dhwdb=true \
+        -Dsysusers=true \
+        -Dtmpfiles=true \
+        -Dtimedated=true \
+        -Dlocaled=true \
+        -Dhostnamed=true \
+        -Dnetworkd=true \
+        -Dresolved=true \
+        -Dnss-myhostname=true \
+        -Dnss-resolve=true \
+        -Dnss-systemd=true \
+        -Dmachined=false \
+        -Dimportd=false \
+        -Dhomed=false \
+        -Dportabled=false \
+        -Duserdb=false \
+        -Doomd=false \
+        -Dremote=false \
+        -Dfirstboot=false \
+        -Drandomseed=true \
+        -Dbacklight=true \
+        -Drfkill=true \
+        -Dcoredump=true \
+        -Dpstore=true \
+        -Dpolkit=false \
+        -Daudit=false \
+        -Dpam=false \
+        -Dapparmor=false \
+        -Dselinux=false \
+        -Dseccomp=false \
+        -Dsmack=false \
+        -Dxkbcommon=false \
+        -Dpcre2=false \
+        -Dglib=false \
+        -Dgnutls=false \
+        -Dopenssl=true \
+        -Dcryptolib=openssl \
+        -Dp11kit=false \
+        -Dlibcurl=false \
+        -Dlibidn2=false \
+        -Dlibiptc=false \
+        -Dqrencode=false \
+        -Dgcrypt=false \
+        -Dmicrohttpd=false \
+        -Dpasswdqc=false \
+        -Dpwquality=false \
+        -Dxenctrl=false \
+        -Dlz4=false \
+        -Dzstd=true \
+        -Dxz=true \
+        -Dzlib=true \
+        -Dbzip2=true \
+        -Dbootloader=false \
+        -Dukify=false \
+        -Dkernel-install=true \
+        -Danalyze=true \
+        -Dtests=false \
+        -Dman=false \
+        -Dhtml=false \
+        -Ddbus=true \
+        -Dblkid=true \
+        -Dkmod=true \
+        -Ddefault-hierarchy=unified \
+        -Dsplit-bin=false \
+        -Dfallback-hostname="${DISTRO_ID}" \
+        -Ddefault-dnssec=no \
+        -Ddefault-mdns=no \
+        -Ddefault-llmnr=no \
+        -Dinstall-sysconfdir=true \
+        -Ddocdir=/usr/share/doc/systemd-256
+
+    ninja
+    ninja install
+
+    # Initialize machine-id (needed by dbus and journald).
+    systemd-machine-id-setup 2>/dev/null || \
+        dbus-uuidgen --ensure=/etc/machine-id || true
+
+    # Ensure /sbin/init symlink exists.
+    [ -e /sbin/init ] || ln -sfv ../lib/systemd/systemd /sbin/init
+
+    # Enable default unit presets.
+    systemctl preset-all 2>/dev/null || true
+
+    log "systemd 256 installed"
 }
 
 # ---- Invocations in book order ----------------------------------------------
@@ -700,6 +797,8 @@ build_pkg 60.wheel          "wheel-"        b_wheel
 build_pkg 60.setuptools     "setuptools-"   b_setuptools
 build_pkg 60.markupsafe     "markupsafe-"   b_markupsafe
 build_pkg 60.jinja2         "jinja2-"       b_jinja2
+build_pkg 60.meson          "meson-"        b_meson
+build_pkg 60.ninja          "ninja-"        b_ninja
 build_pkg 60.coreutils-fin  "coreutils-"    b_coreutils_final
 build_pkg 60.check          "check-"        b_check
 build_pkg 60.diffutils-fin  "diffutils-"    b_diffutils_final
@@ -718,8 +817,7 @@ build_pkg 60.vim            "vim-"          b_vim
 build_pkg 60.procps         "procps-ng-"    b_procps
 build_pkg 60.util-linux-fin "util-linux-"   b_util_linux_final
 build_pkg 60.e2fsprogs      "e2fsprogs-"    b_e2fsprogs
-build_pkg 60.sysklogd       "sysklogd-"     b_sysklogd
-build_pkg 60.sysvinit       "sysvinit-"     b_sysvinit
-build_pkg 60.bootscripts    "lfs-bootscripts-" b_lfs_bootscripts
+build_pkg 60.dbus           "dbus-"         b_dbus
+build_pkg 60.systemd        "systemd-"      b_systemd
 
 log "final system packages installed"

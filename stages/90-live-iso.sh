@@ -125,7 +125,7 @@ menuentry "Gozjaro Live" {
 }
 
 menuentry "Gozjaro Live (verbose)" {
-    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 debug earlyprintk=efi
+    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 systemd.log_level=debug
     initrd /boot/initrd.img
 }
 

@@ -37,7 +37,9 @@ https://pypi.org/packages/source/J/Jinja2/jinja2-3.1.5.tar.gz
 https://www.kernel.org/pub/linux/utils/kbd/kbd-2.7.1.tar.xz
 https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.tar.xz
 https://mirrors.kernel.org/gnu/less/less-668.tar.gz
-https://www.linuxfromscratch.org/lfs/downloads/12.3/lfs-bootscripts-20240825.tar.xz
+https://github.com/mesonbuild/meson/releases/download/1.6.1/meson-1.6.1.tar.gz
+https://github.com/ninja-build/ninja/archive/v1.12.1/ninja-1.12.1.tar.gz
+https://dbus.freedesktop.org/releases/dbus/dbus-1.14.10.tar.xz
 https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.73.tar.xz
 https://github.com/libffi/libffi/releases/download/v3.4.7/libffi-3.4.7.tar.gz
 https://download.savannah.gnu.org/releases/libpipeline/libpipeline-1.5.8.tar.gz
@@ -63,13 +65,11 @@ https://mirrors.kernel.org/gnu/readline/readline-8.2.13.tar.gz
 https://mirrors.kernel.org/gnu/sed/sed-4.9.tar.xz
 https://pypi.org/packages/source/s/setuptools/setuptools-75.8.1.tar.gz
 https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
-https://github.com/troglobit/sysklogd/releases/download/v2.7.0/sysklogd-2.7.0.tar.gz
-https://github.com/slicer69/sysvinit/releases/download/3.14/sysvinit-3.14.tar.xz
+https://github.com/systemd/systemd/archive/v256.11/systemd-256.11.tar.gz
 https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
 https://downloads.sourceforge.net/tcl/tcl8.6.16-src.tar.gz
 https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
 https://www.iana.org/time-zones/repository/releases/tzdata2025a.tar.gz
-https://anduin.linuxfromscratch.org/LFS/udev-lfs-20230818.tar.xz
 https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
 https://github.com/vim/vim/archive/v9.1.1166/vim-9.1.1166.tar.gz
 https://pypi.org/packages/source/w/wheel/wheel-0.45.1.tar.gz
@@ -82,4 +82,3 @@ https://www.linuxfromscratch.org/patches/lfs/12.3/coreutils-9.6-i18n-1.patch
 https://www.linuxfromscratch.org/patches/lfs/12.3/expect-5.45.4-gcc14-1.patch
 https://www.linuxfromscratch.org/patches/lfs/12.3/glibc-2.41-fhs-1.patch
 https://www.linuxfromscratch.org/patches/lfs/12.3/kbd-2.7.1-backspace-1.patch
-https://www.linuxfromscratch.org/patches/lfs/12.3/sysvinit-3.14-consolidated-1.patch

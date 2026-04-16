@@ -186,12 +186,17 @@ mount --move /dev  /run/newroot/dev  || echo "  warn: move /dev"
 mount --move /proc /run/newroot/proc || echo "  warn: move /proc"
 mount --move /sys  /run/newroot/sys  || echo "  warn: move /sys"
 
-if [ ! -x /run/newroot/sbin/init ]; then
-    rescue "/sbin/init missing or not executable in newroot"
-fi
+INIT_BIN=""
+for candidate in /run/newroot/sbin/init /run/newroot/lib/systemd/systemd /run/newroot/usr/lib/systemd/systemd; do
+    if [ -x "$candidate" ]; then
+        INIT_BIN="${candidate#/run/newroot}"
+        break
+    fi
+done
+[ -n "$INIT_BIN" ] || rescue "no init found (/sbin/init, /lib/systemd/systemd)"
 
-echo "[gozjaro-initramfs] switching root to /sbin/init"
-exec switch_root /run/newroot /sbin/init
+echo "[gozjaro-initramfs] switching root to $INIT_BIN"
+exec switch_root /run/newroot "$INIT_BIN"
 rescue "switch_root returned"
 INIT
 chmod 755 "$STAGING/init"
