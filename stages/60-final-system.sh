@@ -740,6 +740,14 @@ b_systemd() {
     log "systemd 256 installed"
 }
 
+b_linux_firmware() {
+    # linux-firmware is prebuilt binary blobs — no compilation, just copy.
+    # This adds ~500MB to $LFS and grows the live ISO significantly; trade
+    # for broad hardware support (wifi, GPU, NIC firmware).
+    make install FIRMWAREDIR=/usr/lib/firmware
+    log "linux-firmware installed at /usr/lib/firmware"
+}
+
 # ---- Invocations in book order ----------------------------------------------
 
 build_pkg 60.man-pages      "man-pages-"    b_man_pages
@@ -819,5 +827,6 @@ build_pkg 60.util-linux-fin "util-linux-"   b_util_linux_final
 build_pkg 60.e2fsprogs      "e2fsprogs-"    b_e2fsprogs
 build_pkg 60.dbus           "dbus-"         b_dbus
 build_pkg 60.systemd        "systemd-"      b_systemd
+build_pkg 60.linux-firmware "linux-firmware-" b_linux_firmware
 
 log "final system packages installed"
