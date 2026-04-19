@@ -39,6 +39,7 @@ STAGES=(
   80-kernel
   85-initramfs
   90-live-iso
+  91-release
 )
 
 # Stages that must be executed as the lfs user.
