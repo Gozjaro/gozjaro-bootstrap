@@ -114,7 +114,8 @@ b_nano() {
 b_parted() {
     ./configure --prefix=/usr \
         --disable-static \
-        --disable-debug
+        --disable-debug \
+        --disable-device-mapper
     make
     make install
 }
