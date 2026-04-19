@@ -744,7 +744,9 @@ b_linux_firmware() {
     # linux-firmware is prebuilt binary blobs — no compilation, just copy.
     # This adds ~500MB to $LFS and grows the live ISO significantly; trade
     # for broad hardware support (wifi, GPU, NIC firmware).
-    make install FIRMWAREDIR=/usr/lib/firmware
+    # MAKEFLAGS must be cleared: the Makefile forwards -jN to copy-firmware.sh
+    # which requires GNU parallel (not in LFS). Serial copy is fine here.
+    make install FIRMWAREDIR=/usr/lib/firmware MAKEFLAGS=
     log "linux-firmware installed at /usr/lib/firmware"
 }
 
