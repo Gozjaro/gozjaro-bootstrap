@@ -22,6 +22,11 @@ b_grub() {
     #   build-bios: i386-pc module tree + all grub-* binaries
     #   build-efi:  x86_64-efi module tree only (binaries already installed)
 
+    # GRUB 2.12 out-of-tree builds require extra_deps.lst to exist in the
+    # source grub-core/ directory. It is normally created by an in-tree
+    # configure; touch it here so out-of-tree Makefiles find it.
+    touch grub-core/extra_deps.lst
+
     # --- BIOS target (i386-pc) -----------------------------------------------
     log "configuring GRUB for i386-pc (BIOS)"
     mkdir -p build-bios && cd build-bios
