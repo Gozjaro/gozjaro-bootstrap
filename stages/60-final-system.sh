@@ -660,7 +660,7 @@ b_systemd() {
         -Dlocaled=true \
         -Dhostnamed=true \
         -Dnetworkd=true \
-        -Dresolve=enabled \
+        -Dresolve=true \
         -Dnss-myhostname=true \
         -Dnss-resolve=enabled \
         -Dnss-systemd=true \
