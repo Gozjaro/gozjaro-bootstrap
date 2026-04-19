@@ -57,6 +57,7 @@ https://ftp.gnu.org/gnu/parted/parted-3.6.tar.xz
 https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
 https://github.com/libarchive/libarchive/releases/download/v3.7.7/libarchive-3.7.7.tar.xz
 https://gitlab.archlinux.org/pacman/pacman/-/releases/v6.1.0/downloads/pacman-6.1.0.tar.xz
+https://ftp.gnu.org/gnu/grub/grub-2.12.tar.xz
 https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
 https://mirrors.kernel.org/gnu/make/make-4.4.1.tar.gz
 https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
