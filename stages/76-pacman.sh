@@ -72,9 +72,9 @@ ParallelDownloads = 5
 SigLevel          = Never
 LocalFileSigLevel = Optional
 
-# Repositories — uncomment once gozjaro-repo publishes a server:
-# [gozjaro-core]
-# Server = https://repo.gozjaro.example/$repo/$arch
+# Repositories
+[gozjaro-core]
+Server = https://github.com/Gozjaro/gozjaro-pkgs/releases/download/repo
 EOF
     fi
 
