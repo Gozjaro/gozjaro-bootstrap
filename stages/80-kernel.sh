@@ -73,6 +73,43 @@ build_kernel() {
         --enable SYSFB_SIMPLEFB \
         --enable DRM \
         --enable DRM_FBDEV_EMULATION
+
+    # Options required by systemd.
+    ./scripts/config \
+        --enable CGROUPS \
+        --enable CGROUP_BPF \
+        --enable CGROUP_FREEZER \
+        --enable CGROUP_PIDS \
+        --enable CGROUP_DEVICE \
+        --enable CGROUP_CPUACCT \
+        --enable CGROUP_PERF \
+        --enable CGROUP_SCHED \
+        --enable MEMCG \
+        --enable BPF_SYSCALL \
+        --enable NAMESPACES \
+        --enable USER_NS \
+        --enable PID_NS \
+        --enable IPC_NS \
+        --enable NET_NS \
+        --enable UTS_NS \
+        --enable SECCOMP \
+        --enable SECCOMP_FILTER \
+        --enable INOTIFY_USER \
+        --enable SIGNALFD \
+        --enable TIMERFD \
+        --enable EPOLL \
+        --enable FHANDLE \
+        --enable CRYPTO_USER_API_HASH \
+        --enable CRYPTO_HMAC \
+        --enable CRYPTO_SHA256 \
+        --enable DMIID \
+        --enable AUTOFS_FS \
+        --enable TMPFS_XATTR \
+        --enable NET_SCHED \
+        --enable NET_CLS_CGROUP \
+        --enable FAIR_GROUP_SCHED \
+        --enable IPV6 \
+        --enable UNIX
     make olddefconfig
 
     make
@@ -93,7 +130,7 @@ build_kernel() {
     log "kernel ${kver} installed to /boot and /lib/modules/${kver}"
 }
 
-build_pkg 80.kernel "linux-" build_kernel
+build_pkg 80.kernel "linux-6." build_kernel
 
 log "kernel stage complete"
 log "NEXT: install a bootloader (e.g. GRUB) and create /boot/grub/grub.cfg pointing at /boot/vmlinuz-*-gozjaro."

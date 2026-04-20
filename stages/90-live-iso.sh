@@ -125,7 +125,7 @@ menuentry "Gozjaro Live" {
 }
 
 menuentry "Gozjaro Live (verbose)" {
-    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 debug earlyprintk=efi
+    linux  /boot/vmlinuz boot=live root=live:LABEL=GOZJARO_LIVE console=tty0 console=ttyS0,115200 systemd.log_level=debug
     initrd /boot/initrd.img
 }
 
@@ -136,7 +136,9 @@ menuentry "Gozjaro Live (nomodeset)" {
 GRUB
 
 # --- assemble ISO -------------------------------------------------------------
-OUT="$GOZJARO_ROOT/gozjaro-live.iso"
+ISO_TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+ISO_NAME="gozjaro-${DISTRO_VERSION}-${ISO_TIMESTAMP}-live.iso"
+OUT="$GOZJARO_ROOT/$ISO_NAME"
 log "writing $OUT"
 grub-mkrescue -o "$OUT" "$ISOROOT" -- -volid GOZJARO_LIVE \
     2>&1 | tail -n 20

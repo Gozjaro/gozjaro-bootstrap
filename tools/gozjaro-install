@@ -1,0 +1,340 @@
+#!/usr/bin/env bash
+# gozjaro-install — Gozjaro Linux interactive installer
+#
+# Runs on the live ISO as root. Installs from /run/squashfs to a chosen disk.
+#
+# Usage:
+#   gozjaro-install [--target DISK] [--yes]
+#
+# --target DISK   Skip disk selection prompt (e.g. /dev/sda or /dev/nvme0n1)
+# --yes           Use defaults for all prompts (hostname=gozjaro, tz=UTC)
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Colour helpers
+# ---------------------------------------------------------------------------
+_r=$'\033[0;31m' _g=$'\033[0;32m' _y=$'\033[1;33m' _c=$'\033[0;36m' _o=$'\033[0m'
+info()  { printf '%s[gozjaro-install]%s %s\n'       "$_g" "$_o" "$*"; }
+warn()  { printf '%s[gozjaro-install warn]%s %s\n'  "$_y" "$_o" "$*" >&2; }
+die()   { printf '%s[gozjaro-install FATAL]%s %s\n' "$_r" "$_o" "$*" >&2; exit 1; }
+step()  { printf '\n%s>>> Step %s%s\n'               "$_c" "$*" "$_o"; }
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+TARGET_DISK=""
+AUTO_YES=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --target) TARGET_DISK="$2"; shift 2 ;;
+        --yes|-y) AUTO_YES=1; shift ;;
+        -h|--help)
+            sed -n '2,8p' "$0"
+            exit 0 ;;
+        *) die "unknown option: $1" ;;
+    esac
+done
+
+INSTALL_ROOT=/mnt/install
+
+# ---------------------------------------------------------------------------
+# Precondition checks
+# ---------------------------------------------------------------------------
+[ "$(id -u)" = "0" ]          || die "must run as root"
+[ -d /run/squashfs ]           || die "/run/squashfs not mounted — is this the Gozjaro live ISO?"
+[ -d /run/livecd/boot ]        || die "/run/livecd/boot not found — kernel/initrd source missing"
+[ -f /run/livecd/live/filesystem.squashfs ] \
+                                || die "/run/livecd/live/filesystem.squashfs missing"
+command -v parted    >/dev/null || die "parted not found"
+command -v rsync     >/dev/null || die "rsync not found"
+command -v mkfs.ext4 >/dev/null || die "mkfs.ext4 not found (e2fsprogs)"
+command -v mkfs.vfat >/dev/null || die "mkfs.vfat not found (dosfstools)"
+command -v grub-install >/dev/null || die "grub-install not found — was stage 77 built?"
+
+echo
+printf '%s   Gozjaro Linux Installer v0.1%s\n' "$_c" "$_o"
+printf '%s   ===================================%s\n\n' "$_c" "$_o"
+
+# ---------------------------------------------------------------------------
+# Step 1/13 — Disk selection
+# ---------------------------------------------------------------------------
+step "1/13  Disk selection"
+info "Available disks:"
+lsblk -d -o NAME,SIZE,MODEL,TYPE | grep -v "^loop" || true
+echo
+
+if [ -z "$TARGET_DISK" ]; then
+    printf '%s[?]%s Enter target disk (e.g. /dev/sda): ' "$_y" "$_o"
+    read -r TARGET_DISK
+fi
+
+TARGET_DISK="${TARGET_DISK%/}"
+[ -b "$TARGET_DISK" ] || die "not a block device: $TARGET_DISK"
+
+# Detect partition naming scheme (nvme → p1/p2, everything else → 1/2).
+if printf '%s' "$TARGET_DISK" | grep -qE 'nvme|mmcblk'; then
+    PART_ESP="${TARGET_DISK}p1"
+    PART_ROOT="${TARGET_DISK}p2"
+else
+    PART_ESP="${TARGET_DISK}1"
+    PART_ROOT="${TARGET_DISK}2"
+fi
+
+info "Disk  : $TARGET_DISK"
+info "ESP   : $PART_ESP  (512 MiB, FAT32)"
+info "Root  : $PART_ROOT  (remaining space, ext4)"
+echo
+
+if [ "$AUTO_YES" = "0" ]; then
+    warn "ALL DATA ON $TARGET_DISK WILL BE PERMANENTLY DESTROYED."
+    printf '%s[?]%s Type YES to continue: ' "$_y" "$_o"
+    read -r _confirm
+    [ "$_confirm" = "YES" ] || { info "Aborted."; exit 0; }
+fi
+
+# ---------------------------------------------------------------------------
+# Step 2/13 — Partition (GPT: 512 MiB ESP + rest for root)
+# ---------------------------------------------------------------------------
+step "2/13  Partitioning $TARGET_DISK"
+
+wipefs -a "$TARGET_DISK" 2>/dev/null || true
+
+parted -s "$TARGET_DISK" -- \
+    mklabel gpt \
+    mkpart ESP  fat32  1MiB   513MiB \
+    mkpart root ext4   513MiB 100%   \
+    set 1 esp on                      \
+    set 1 boot on
+
+# Give the kernel a moment to see the new partition table.
+partprobe "$TARGET_DISK" 2>/dev/null || udevadm settle 2>/dev/null || true
+sleep 1
+
+# Wait up to 10 s for device nodes to appear.
+for _try in 1 2 3 4 5 6 7 8 9 10; do
+    [ -b "$PART_ROOT" ] && break
+    sleep 1
+done
+[ -b "$PART_ESP"  ] || die "ESP partition $PART_ESP did not appear"
+[ -b "$PART_ROOT" ] || die "root partition $PART_ROOT did not appear"
+
+info "Partitioned OK"
+
+# ---------------------------------------------------------------------------
+# Step 3/13 — Format
+# ---------------------------------------------------------------------------
+step "3/13  Formatting partitions"
+mkfs.vfat -F32 -n GOZJARO_EFI "$PART_ESP"
+mkfs.ext4 -L GOZJARO_ROOT -F "$PART_ROOT"
+info "Formatted ESP (FAT32) and root (ext4)"
+
+# ---------------------------------------------------------------------------
+# Step 4/13 — Mount target
+# ---------------------------------------------------------------------------
+step "4/13  Mounting target filesystem"
+mkdir -p "$INSTALL_ROOT"
+mount "$PART_ROOT" "$INSTALL_ROOT"
+mkdir -p "$INSTALL_ROOT/boot/efi"
+mount "$PART_ESP"  "$INSTALL_ROOT/boot/efi"
+info "Mounted at $INSTALL_ROOT"
+
+# ---------------------------------------------------------------------------
+# Cleanup trap — unmount everything on exit or error
+# ---------------------------------------------------------------------------
+_cleanup() {
+    local mounts m
+    mounts=$(grep "$INSTALL_ROOT" /proc/mounts 2>/dev/null \
+             | awk '{print $2}' | sort -r) || true
+    for m in $mounts; do
+        umount -l "$m" 2>/dev/null || true
+    done
+}
+trap _cleanup EXIT
+
+# ---------------------------------------------------------------------------
+# Step 5/13 — Copy root filesystem from squashfs
+# ---------------------------------------------------------------------------
+step "5/13  Copying root filesystem (this may take several minutes)"
+# Source: read-only squashfs — the pristine system without live session writes.
+# -aHAXx: archive + hard-links + ACLs + xattrs, no cross-device boundaries.
+rsync -aHAXx --info=progress2 \
+    --exclude=/run   \
+    --exclude=/tmp   \
+    --exclude=/proc  \
+    --exclude=/sys   \
+    --exclude=/dev   \
+    /run/squashfs/ "$INSTALL_ROOT/"
+info "Root filesystem copied"
+
+# ---------------------------------------------------------------------------
+# Step 6/13 — Copy kernel and initramfs
+# ---------------------------------------------------------------------------
+step "6/13  Installing kernel and initramfs"
+mkdir -p "$INSTALL_ROOT/boot"
+
+# The ISO's kernel/initrd live on the live medium, not inside the squashfs.
+cp -v /run/livecd/boot/vmlinuz    "$INSTALL_ROOT/boot/vmlinuz"
+cp -v /run/livecd/boot/initrd.img "$INSTALL_ROOT/boot/initrd.img"
+info "Kernel and initrd installed at /boot"
+
+# ---------------------------------------------------------------------------
+# Step 7/13 — Generate /etc/fstab
+# ---------------------------------------------------------------------------
+step "7/13  Generating /etc/fstab"
+ROOT_UUID=$(blkid -s UUID -o value "$PART_ROOT")
+ESP_UUID=$(blkid  -s UUID -o value "$PART_ESP")
+[ -n "$ROOT_UUID" ] || die "could not read UUID of $PART_ROOT"
+[ -n "$ESP_UUID"  ] || die "could not read UUID of $PART_ESP"
+info "Root UUID: $ROOT_UUID"
+info "ESP  UUID: $ESP_UUID"
+
+cat > "$INSTALL_ROOT/etc/fstab" <<FSTAB
+# /etc/fstab — generated by gozjaro-install
+# <device>           <mount>     <type>  <options>               <dump> <fsck>
+UUID=${ROOT_UUID}    /           ext4    defaults,noatime        0      1
+UUID=${ESP_UUID}     /boot/efi   vfat    umask=0077              0      2
+proc                 /proc       proc    nosuid,noexec,nodev     0      0
+sysfs                /sys        sysfs   nosuid,noexec,nodev     0      0
+devpts               /dev/pts    devpts  gid=5,mode=620          0      0
+tmpfs                /run        tmpfs   defaults                0      0
+tmpfs                /dev/shm    tmpfs   nosuid,nodev            0      0
+FSTAB
+
+# ---------------------------------------------------------------------------
+# Step 8/13 — Hostname and timezone
+# ---------------------------------------------------------------------------
+step "8/13  System configuration"
+
+if [ "$AUTO_YES" = "0" ]; then
+    printf '%s[?]%s Hostname [gozjaro]: ' "$_y" "$_o"
+    read -r _hostname
+    _hostname="${_hostname:-gozjaro}"
+else
+    _hostname="gozjaro"
+fi
+printf '%s\n' "$_hostname" > "$INSTALL_ROOT/etc/hostname"
+
+cat > "$INSTALL_ROOT/etc/hosts" <<HOSTS
+127.0.0.1   localhost.localdomain localhost
+127.0.1.1   ${_hostname}.localdomain ${_hostname}
+::1         localhost ip6-localhost ip6-loopback
+ff02::1     ip6-allnodes
+ff02::2     ip6-allrouters
+HOSTS
+
+if [ "$AUTO_YES" = "0" ]; then
+    info "Tip: timezones are under /usr/share/zoneinfo/ (e.g. Europe/London)"
+    printf '%s[?]%s Timezone [UTC]: ' "$_y" "$_o"
+    read -r _tz
+    _tz="${_tz:-UTC}"
+else
+    _tz="UTC"
+fi
+
+if [ -f "$INSTALL_ROOT/usr/share/zoneinfo/$_tz" ]; then
+    ln -sfv "/usr/share/zoneinfo/$_tz" "$INSTALL_ROOT/etc/localtime"
+    printf '%s\n' "$_tz" > "$INSTALL_ROOT/etc/timezone"
+    info "Timezone: $_tz"
+else
+    warn "Timezone '$_tz' not found — falling back to UTC"
+    ln -sfv /usr/share/zoneinfo/UTC "$INSTALL_ROOT/etc/localtime"
+fi
+
+# ---------------------------------------------------------------------------
+# Step 9/13 — Clear machine-id
+# ---------------------------------------------------------------------------
+step "9/13  Clearing machine-id (systemd regenerates on first boot)"
+: > "$INSTALL_ROOT/etc/machine-id"
+
+# ---------------------------------------------------------------------------
+# Step 10/13 — Remove live-only systemd overrides
+# ---------------------------------------------------------------------------
+step "10/13  Removing live-only systemd configuration"
+
+# Autologin drop-in (live-only — installed system should prompt for login).
+AUTOLOGIN_DROP="$INSTALL_ROOT/etc/systemd/system/getty@tty1.service.d/autologin.conf"
+if [ -f "$AUTOLOGIN_DROP" ]; then
+    rm -v "$AUTOLOGIN_DROP"
+    rmdir "$INSTALL_ROOT/etc/systemd/system/getty@tty1.service.d" 2>/dev/null || true
+fi
+
+# Volatile journal (live-only — installed systems use persistent /var/log/journal).
+JOURNAL_LIVE="$INSTALL_ROOT/etc/systemd/journald.conf.d/live.conf"
+if [ -f "$JOURNAL_LIVE" ]; then
+    rm -v "$JOURNAL_LIVE"
+    rmdir "$INSTALL_ROOT/etc/systemd/journald.conf.d" 2>/dev/null || true
+fi
+
+# The fstab in the squashfs has overlay / — already replaced in step 7.
+info "Live-only overrides removed"
+
+# ---------------------------------------------------------------------------
+# Step 11/13 — Bind virtual filesystems into target for chroot
+# ---------------------------------------------------------------------------
+step "11/13  Binding virtual filesystems for chroot"
+for _fs in dev proc sys run; do
+    mountpoint -q "$INSTALL_ROOT/$_fs" && continue
+    mount --bind "/$_fs" "$INSTALL_ROOT/$_fs"
+done
+# devpts: bind of /dev/pts can be unreliable; mount fresh.
+if ! mountpoint -q "$INSTALL_ROOT/dev/pts"; then
+    mount -t devpts devpts -o gid=5,mode=0620 "$INSTALL_ROOT/dev/pts" 2>/dev/null || \
+        mount --bind /dev/pts "$INSTALL_ROOT/dev/pts"
+fi
+
+# ---------------------------------------------------------------------------
+# Step 12/13 — Install bootloader (inside chroot)
+# ---------------------------------------------------------------------------
+step "12/13  Installing GRUB bootloader"
+
+if [ -d /sys/firmware/efi ]; then
+    info "UEFI firmware detected — installing GRUB as EFI application"
+    GRUB_CMD="grub-install --target=x86_64-efi --efi-directory=/boot/efi \
+        --bootloader-id=Gozjaro --removable --recheck"
+else
+    info "BIOS firmware detected — installing GRUB to MBR of $TARGET_DISK"
+    GRUB_CMD="grub-install --target=i386-pc --recheck $TARGET_DISK"
+fi
+
+chroot "$INSTALL_ROOT" /usr/bin/env -i \
+    HOME=/root \
+    PATH=/usr/bin:/usr/sbin \
+    TERM="${TERM:-linux}" \
+    TARGET_DISK="$TARGET_DISK" \
+    /bin/bash -lc "
+        set -e
+        $GRUB_CMD
+        mkdir -p /boot/grub
+        grub-mkconfig -o /boot/grub/grub.cfg
+    "
+info "Bootloader installed"
+
+# ---------------------------------------------------------------------------
+# Step 13/13 — Cleanup and reboot prompt
+# ---------------------------------------------------------------------------
+step "13/13  Finalising"
+
+# Unmount chroot virtual FS before the trap unmounts the rest.
+for _fs in dev/pts dev proc sys run; do
+    umount "$INSTALL_ROOT/$_fs" 2>/dev/null || true
+done
+
+# Flush disk writes.
+sync
+
+printf '\n%s   Installation complete!%s\n\n' "$_g" "$_o"
+info "Hostname : $_hostname"
+info "Timezone : ${_tz:-UTC}"
+info "Root UUID: $ROOT_UUID"
+echo
+
+if [ "$AUTO_YES" = "0" ]; then
+    printf '%s[?]%s Remove the live medium and reboot now? [y/N]: ' "$_y" "$_o"
+    read -r _reboot
+    case "$_reboot" in
+        y|Y|yes|YES) systemctl reboot ;;
+        *) info "Reboot manually when ready: systemctl reboot" ;;
+    esac
+fi

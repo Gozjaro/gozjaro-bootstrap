@@ -116,82 +116,158 @@ done
 # --- /init --------------------------------------------------------------------
 cat > "$STAGING/init" <<'INIT'
 #!/bin/bash
+# Dual-mode initramfs /init for Gozjaro.
+#   Live boot:    kernel cmdline contains root=live:LABEL=<LABEL>
+#   Installed:    kernel cmdline contains root=UUID=<uuid> or root=/dev/sdXY
+#
 # NO set -e: a single failing command would silently kill PID 1 and panic.
-# Instead, we log every step and fall through to a rescue shell on error.
 
 rescue() {
     echo "[gozjaro-initramfs] FAIL: $*"
-    echo "[gozjaro-initramfs] dropping to rescue shell (exit to panic)"
+    echo "[gozjaro-initramfs] dropping to rescue shell (exit to re-exec init)"
     exec /bin/bash
 }
 
 echo "[gozjaro-initramfs] starting (PID $$)"
 
-echo "[gozjaro-initramfs] mount /proc"
+# --- Virtual filesystems -----------------------------------------------------
 mount -t proc     proc     /proc || rescue "mount /proc"
-echo "[gozjaro-initramfs] mount /sys"
 mount -t sysfs    sysfs    /sys  || rescue "mount /sys"
-echo "[gozjaro-initramfs] mount /dev (devtmpfs)"
 mount -t devtmpfs devtmpfs /dev  || rescue "mount /dev"
 
+# --- Kernel modules ----------------------------------------------------------
 echo "[gozjaro-initramfs] loading modules"
 for m in loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas; do
     modprobe -q "$m" && echo "  + $m" || echo "  - $m (missing/builtin)"
 done
 
-echo "[gozjaro-initramfs] waiting for GOZJARO_LIVE label"
-for i in 1 2 3 4 5 6 7 8 9 10; do
-    if blkid -L GOZJARO_LIVE >/dev/null 2>&1; then
-        echo "  found on try $i"; break
-    fi
-    sleep 1
-done
-
-LIVE_DEV=$(blkid -L GOZJARO_LIVE 2>/dev/null)
-if [ -z "$LIVE_DEV" ]; then
-    echo "[gozjaro-initramfs] label not found, scanning block devices"
-    for d in /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/sdc /dev/nvme0n1p1; do
-        [ -b "$d" ] || continue
-        mkdir -p /run/probe
-        if mount -o ro "$d" /run/probe 2>/dev/null; then
-            if [ -f /run/probe/live/filesystem.squashfs ]; then
-                LIVE_DEV="$d"; umount /run/probe
-                echo "  found squashfs on $d"; break
-            fi
-            umount /run/probe
-        fi
+# --- Parse root= from kernel cmdline -----------------------------------------
+get_cmdline_val() {
+    local key="$1"
+    local tok
+    for tok in $(cat /proc/cmdline); do
+        case "$tok" in "${key}="*) printf '%s' "${tok#${key}=}"; return ;; esac
     done
-fi
-[ -n "$LIVE_DEV" ] || rescue "no live medium found"
-echo "[gozjaro-initramfs] live device: $LIVE_DEV"
+}
+ROOT_PARAM=$(get_cmdline_val root)
+echo "[gozjaro-initramfs] root=$ROOT_PARAM"
 
-mkdir -p /run/livecd /run/squashfs /run/overlay /run/newroot
-mount -o ro "$LIVE_DEV" /run/livecd                              || rescue "mount livecd"
-mount -o loop,ro /run/livecd/live/filesystem.squashfs /run/squashfs \
-                                                                 || rescue "mount squashfs"
-mount -t tmpfs tmpfs /run/overlay                                || rescue "mount overlay tmpfs"
-mkdir -p /run/overlay/upper /run/overlay/work
-mount -t overlay overlay \
-    -o lowerdir=/run/squashfs,upperdir=/run/overlay/upper,workdir=/run/overlay/work \
-    /run/newroot                                                 || rescue "mount overlay"
+# --- Branch: live vs real-disk -----------------------------------------------
+case "$ROOT_PARAM" in
 
-echo "[gozjaro-initramfs] overlay assembled; moving mounts"
-mkdir -p /run/newroot/run/livecd /run/newroot/run/squashfs /run/newroot/run/overlay
-mount --move /run/livecd   /run/newroot/run/livecd   || echo "  warn: move livecd"
-mount --move /run/squashfs /run/newroot/run/squashfs || echo "  warn: move squashfs"
-mount --move /run/overlay  /run/newroot/run/overlay  || echo "  warn: move overlay"
+    live:LABEL=*)
+        # ==================================================================
+        # LIVE PATH — squashfs + overlayfs
+        # ==================================================================
+        echo "[gozjaro-initramfs] mode: live"
+        LIVE_LABEL="${ROOT_PARAM#live:LABEL=}"
 
+        echo "[gozjaro-initramfs] waiting for label $LIVE_LABEL"
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+            blkid -L "$LIVE_LABEL" >/dev/null 2>&1 && { echo "  found on try $i"; break; }
+            sleep 1
+        done
+
+        LIVE_DEV=$(blkid -L "$LIVE_LABEL" 2>/dev/null)
+        if [ -z "$LIVE_DEV" ]; then
+            echo "[gozjaro-initramfs] label not found, scanning block devices"
+            for d in /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/sdc /dev/nvme0n1p1; do
+                [ -b "$d" ] || continue
+                mkdir -p /run/probe
+                if mount -o ro "$d" /run/probe 2>/dev/null; then
+                    if [ -f /run/probe/live/filesystem.squashfs ]; then
+                        LIVE_DEV="$d"; umount /run/probe
+                        echo "  found squashfs on $d"; break
+                    fi
+                    umount /run/probe
+                fi
+            done
+        fi
+        [ -n "$LIVE_DEV" ] || rescue "no live medium found"
+        echo "[gozjaro-initramfs] live device: $LIVE_DEV"
+
+        mkdir -p /run/livecd /run/squashfs /run/overlay /run/newroot
+        mount -o ro "$LIVE_DEV" /run/livecd                             || rescue "mount livecd"
+        mount -o loop,ro /run/livecd/live/filesystem.squashfs /run/squashfs \
+                                                                        || rescue "mount squashfs"
+        mount -t tmpfs tmpfs /run/overlay                               || rescue "mount overlay tmpfs"
+        mkdir -p /run/overlay/upper /run/overlay/work
+        mount -t overlay overlay \
+            -o lowerdir=/run/squashfs,upperdir=/run/overlay/upper,workdir=/run/overlay/work \
+            /run/newroot                                                || rescue "mount overlay"
+
+        echo "[gozjaro-initramfs] overlay assembled; moving mounts"
+        mkdir -p /run/newroot/run/livecd /run/newroot/run/squashfs /run/newroot/run/overlay
+        mount --move /run/livecd   /run/newroot/run/livecd   || echo "  warn: move livecd"
+        mount --move /run/squashfs /run/newroot/run/squashfs || echo "  warn: move squashfs"
+        mount --move /run/overlay  /run/newroot/run/overlay  || echo "  warn: move overlay"
+        ;;
+
+    UUID=*)
+        # ==================================================================
+        # REAL-DISK PATH — resolve UUID to device, mount directly
+        # ==================================================================
+        echo "[gozjaro-initramfs] mode: real-disk (UUID)"
+        WANT_UUID="${ROOT_PARAM#UUID=}"
+        ROOT_DEV=""
+        for i in $(seq 1 15); do
+            ROOT_DEV=$(blkid -U "$WANT_UUID" 2>/dev/null || true)
+            [ -n "$ROOT_DEV" ] && break
+            echo "  waiting for UUID=$WANT_UUID (try $i/15)"
+            sleep 1
+        done
+        [ -n "$ROOT_DEV" ] || rescue "UUID=$WANT_UUID not found after 15s"
+        echo "[gozjaro-initramfs] root device: $ROOT_DEV"
+        mkdir -p /run/newroot
+        mount "$ROOT_DEV" /run/newroot || rescue "mount $ROOT_DEV"
+        ;;
+
+    /dev/*)
+        # ==================================================================
+        # REAL-DISK PATH — device path given directly
+        # ==================================================================
+        echo "[gozjaro-initramfs] mode: real-disk (device)"
+        ROOT_DEV="$ROOT_PARAM"
+        for i in $(seq 1 10); do
+            [ -b "$ROOT_DEV" ] && break
+            echo "  waiting for $ROOT_DEV (try $i/10)"
+            sleep 1
+        done
+        [ -b "$ROOT_DEV" ] || rescue "device $ROOT_DEV not found"
+        mkdir -p /run/newroot
+        mount "$ROOT_DEV" /run/newroot || rescue "mount $ROOT_DEV"
+        ;;
+
+    "")
+        rescue "no root= on kernel cmdline — check grub.cfg"
+        ;;
+
+    *)
+        rescue "unrecognised root= format: $ROOT_PARAM"
+        ;;
+esac
+
+# --- Move virtual FS mounts into newroot (common to both paths) --------------
 mkdir -p /run/newroot/dev /run/newroot/proc /run/newroot/sys
 mount --move /dev  /run/newroot/dev  || echo "  warn: move /dev"
 mount --move /proc /run/newroot/proc || echo "  warn: move /proc"
 mount --move /sys  /run/newroot/sys  || echo "  warn: move /sys"
 
-if [ ! -x /run/newroot/sbin/init ]; then
-    rescue "/sbin/init missing or not executable in newroot"
-fi
+# --- Find init binary ---------------------------------------------------------
+INIT_BIN=""
+for candidate in \
+    /run/newroot/sbin/init \
+    /run/newroot/lib/systemd/systemd \
+    /run/newroot/usr/lib/systemd/systemd; do
+    if [ -x "$candidate" ]; then
+        INIT_BIN="${candidate#/run/newroot}"
+        break
+    fi
+done
+[ -n "$INIT_BIN" ] || rescue "no init found in /run/newroot"
 
-echo "[gozjaro-initramfs] switching root to /sbin/init"
-exec switch_root /run/newroot /sbin/init
+echo "[gozjaro-initramfs] switching root to $INIT_BIN"
+exec switch_root /run/newroot "$INIT_BIN"
 rescue "switch_root returned"
 INIT
 chmod 755 "$STAGING/init"
