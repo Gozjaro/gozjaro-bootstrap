@@ -57,6 +57,9 @@ chroot "$LFS" /usr/bin/env -i \
         ./build.sh 51-chroot-tools
         ./build.sh 60-final-system
         ./build.sh 70-system-config
+        ./build.sh 75-live-tools
+        ./build.sh 76-pacman
+        ./build.sh 77-grub
         ./build.sh 80-kernel
         ./build.sh 85-initramfs
     '
