@@ -93,7 +93,7 @@ for ld in /lib64/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2; do
 done
 
 # --- copy the kernel modules we need at boot ---------------------------------
-modules=( loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas )
+modules=( loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas nvme nvme-core )
 moddir="/lib/modules/$KVER"
 [ -d "$moddir" ] || die "kernel modules dir missing: $moddir"
 mkdir -p "$STAGING$moddir"
@@ -137,7 +137,7 @@ mount -t devtmpfs devtmpfs /dev  || rescue "mount /dev"
 
 # --- Kernel modules ----------------------------------------------------------
 echo "[gozjaro-initramfs] loading modules"
-for m in loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas; do
+for m in loop squashfs isofs overlay ext4 sr_mod cdrom usb-storage uas nvme nvme-core; do
     modprobe -q "$m" && echo "  + $m" || echo "  - $m (missing/builtin)"
 done
 
@@ -163,7 +163,7 @@ case "$ROOT_PARAM" in
         LIVE_LABEL="${ROOT_PARAM#live:LABEL=}"
 
         echo "[gozjaro-initramfs] waiting for label $LIVE_LABEL"
-        for i in 1 2 3 4 5 6 7 8 9 10; do
+        for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
             blkid -L "$LIVE_LABEL" >/dev/null 2>&1 && { echo "  found on try $i"; break; }
             sleep 1
         done
@@ -171,7 +171,9 @@ case "$ROOT_PARAM" in
         LIVE_DEV=$(blkid -L "$LIVE_LABEL" 2>/dev/null)
         if [ -z "$LIVE_DEV" ]; then
             echo "[gozjaro-initramfs] label not found, scanning block devices"
-            for d in /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/sdc /dev/nvme0n1p1; do
+            for d in /dev/sr0 /dev/sr1 /dev/sd[a-z] /dev/sd[a-z][0-9] \
+                     /dev/nvme[0-9]n[0-9] /dev/nvme[0-9]n[0-9]p[0-9] \
+                     /dev/nvme[0-9]n[0-9]p[0-9][0-9]; do
                 [ -b "$d" ] || continue
                 mkdir -p /run/probe
                 if mount -o ro "$d" /run/probe 2>/dev/null; then

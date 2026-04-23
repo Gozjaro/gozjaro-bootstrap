@@ -59,6 +59,8 @@ build_kernel() {
         --enable USB_UAS \
         --enable SCSI \
         --enable BLK_DEV_SD \
+        --enable BLK_DEV_NVME \
+        --enable NVME_CORE \
         --enable EFI \
         --enable EFI_STUB \
         --enable EFI_MIXED \
