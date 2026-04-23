@@ -1,0 +1,110 @@
+# Gozjaro base system packages (LFS 12.3 equivalent).
+# Used by stage 36-binary-install.sh when building in binary mode.
+# One package name per line. Lines starting with # are comments.
+
+# C library and core
+glibc
+gcc
+binutils
+
+# Compression
+zlib
+bzip2
+xz
+lz4
+zstd
+
+# Core utilities
+coreutils
+util-linux
+sed
+grep
+gawk
+findutils
+diffutils
+patch
+tar
+gzip
+less
+file
+
+# Shell and terminal
+bash
+readline
+ncurses
+
+# Build tools
+m4
+bc
+flex
+bison
+make
+autoconf
+automake
+libtool
+pkgconf
+meson
+ninja
+cmake
+
+# Math libraries (needed by gcc)
+gmp
+mpfr
+mpc
+
+# Security and permissions
+attr
+acl
+libcap
+libxcrypt
+shadow
+openssl
+
+# System
+psmisc
+iproute2
+kbd
+kmod
+eudev
+sysvinit
+sysklogd
+e2fsprogs
+
+# Text and docs
+man-pages
+man-db
+groff
+texinfo
+vim
+
+# Networking
+iana-etc
+inetutils
+
+# Libraries
+expat
+libelf
+libffi
+libpipeline
+gdbm
+gperf
+
+# Perl and Python
+perl
+python3
+
+# Internationalization
+gettext
+intltool
+
+# Testing (optional, comment out for minimal install)
+# tcl
+# expect
+# dejagnu
+# check
+
+# Misc
+flit-core
+wheel
+setuptools
+xml-parser

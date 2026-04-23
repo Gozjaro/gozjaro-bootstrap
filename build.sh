@@ -2,16 +2,27 @@
 # Gozjaro LFS bootstrap orchestrator.
 #
 # Usage:
-#   sudo ./build.sh all                    # run every stage, skipping completed ones
+#   sudo ./build.sh all                    # run every stage (source mode)
+#   sudo ./build.sh --mode binary all      # run every stage (binary mode)
 #   sudo ./build.sh <stage>                # run one stage by number or name
 #   sudo ./build.sh --force <stage>        # re-run a completed stage
 #   sudo ./build.sh --list                 # list stages
 #   sudo ./build.sh --status               # show which stages are done
 #
-# Stages:
+# Build modes:
+#   source (default) — compile everything from source (LFS 12.3)
+#   binary           — install pre-built packages from a gozpak repo
+#
+# Source stages:
 #   00-host-check    10-partition     20-fetch-sources  21-layout
 #   22-lfs-user      23-env           30-cross-toolchain 40-temp-tools
 #   50-chroot-prep   51-chroot-tools  60-final-system   70-system-config
+#   80-kernel        85-initramfs     90-live-iso
+#
+# Binary stages:
+#   00-host-check    10-partition     21-layout
+#   50-chroot-prep   35-gozpak-bootstrap  36-binary-install
+#   70-system-config 80-kernel        85-initramfs     90-live-iso
 
 set -euo pipefail
 
@@ -20,7 +31,12 @@ export GOZJARO_ROOT
 # shellcheck source=lib/common.sh
 . "$GOZJARO_ROOT/lib/common.sh"
 
-STAGES=(
+# Build mode: "source" (default) or "binary".
+BUILD_MODE="${BUILD_MODE:-source}"
+export BUILD_MODE
+
+# Source mode: compile everything from source (LFS 12.3 chapters 5-9).
+STAGES_SOURCE=(
   00-host-check
   10-partition
   20-fetch-sources
@@ -42,6 +58,28 @@ STAGES=(
   91-release
 )
 
+# Binary mode: install pre-built packages from a gozpak repository.
+# Skips source fetch, cross-toolchain, temp-tools, and source compilation.
+STAGES_BINARY=(
+  00-host-check
+  10-partition
+  21-layout
+  50-chroot-prep
+  35-gozpak-bootstrap
+  36-binary-install
+  70-system-config
+  80-kernel
+  85-initramfs
+  90-live-iso
+)
+
+# Select active stage list based on mode.
+if [ "$BUILD_MODE" = "binary" ]; then
+    STAGES=("${STAGES_BINARY[@]}")
+else
+    STAGES=("${STAGES_SOURCE[@]}")
+fi
+
 # Stages that must be executed as the lfs user.
 stage_is_lfs_user() {
     case "$1" in
@@ -53,6 +91,7 @@ stage_is_lfs_user() {
 # Stages that run inside the chroot.
 stage_is_chroot() {
     case "$1" in
+        35-gozpak-bootstrap|36-binary-install) return 0 ;;
         51-chroot-tools|60-final-system|70-system-config|75-live-tools|76-pacman|77-grub|80-kernel|85-initramfs) return 0 ;;
         *) return 1 ;;
     esac
@@ -133,9 +172,18 @@ main() {
     while [ $# -gt 0 ]; do
         case "$1" in
             --force) force=1; shift ;;
+            --mode)
+                BUILD_MODE="$2"; shift 2
+                if [ "$BUILD_MODE" = "binary" ]; then
+                    STAGES=("${STAGES_BINARY[@]}")
+                else
+                    STAGES=("${STAGES_SOURCE[@]}")
+                fi
+                export BUILD_MODE
+                ;;
             --list)  cmd_list; exit 0 ;;
             --status) cmd_status; exit 0 ;;
-            -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
+            -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
             --) shift; break ;;
             *) break ;;
         esac
