@@ -32,10 +32,10 @@ if [ -z "$GOZPAK_SRC" ]; then
     GOZPAK_SRC="/tmp/gozpak-download"
     if command -v curl >/dev/null 2>&1; then
         curl -fLo "$GOZPAK_SRC" \
-            "https://raw.githubusercontent.com/Gozjaro/gozpak/master/gozpak"
+            "https://github.com/Gozjaro/gozpak/releases/download/stable/gozpak"
     elif command -v wget >/dev/null 2>&1; then
         wget -O "$GOZPAK_SRC" \
-            "https://raw.githubusercontent.com/Gozjaro/gozpak/master/gozpak"
+            "https://github.com/Gozjaro/gozpak/releases/download/stable/gozpak"
     else
         die "No curl or wget available to download gozpak"
     fi
@@ -77,8 +77,8 @@ else
 # Gozjaro package repositories.
 # One URL per line. Lines starting with # are comments.
 #
-# Official repo (uncomment when available):
-# https://repo.gozjaro.org/stable
+# Official repo:
+https://github.com/Gozjaro/gozjaro-repo/releases/download/stable
 #
 # To use a local repo, point GOZPAK_PATH to the directory instead.
 REPOS

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build GRUB 2 (both i386-pc BIOS and x86_64-efi UEFI targets) and install
 # the gozjaro-install CLI installer to /usr/bin.
-# Runs inside the chroot, after stage 76 (pacman) and before stage 80 (kernel).
+# Runs inside the chroot, after stage 75 (live-tools) and before stage 80 (kernel).
 # shellcheck source=../lib/common.sh
 . "$(dirname "$(readlink -f "$0")")/../lib/common.sh"
 # shellcheck source=../lib/pkg.sh

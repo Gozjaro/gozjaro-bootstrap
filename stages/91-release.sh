@@ -42,7 +42,7 @@ RELEASE_NOTES="## Gozjaro Linux ${DISTRO_VERSION} live ISO
 - systemd 256 as init
 - GRUB 2.12 (BIOS i386-pc + UEFI x86_64-efi)
 - Live tools: curl, wget, git, rsync, openssh, nano, parted, dosfstools
-- pacman 6.1.0 package manager
+- gozpak package manager
 - linux-firmware (broad hardware support)
 - \`gozjaro-install\` CLI installer
 
