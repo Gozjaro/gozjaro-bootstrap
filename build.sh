@@ -50,7 +50,6 @@ STAGES_SOURCE=(
   60-final-system
   70-system-config
   75-live-tools
-  76-pacman
   77-grub
   80-kernel
   85-initramfs
@@ -92,7 +91,7 @@ stage_is_lfs_user() {
 stage_is_chroot() {
     case "$1" in
         35-gozpak-bootstrap|36-binary-install) return 0 ;;
-        51-chroot-tools|60-final-system|70-system-config|75-live-tools|76-pacman|77-grub|80-kernel|85-initramfs) return 0 ;;
+        51-chroot-tools|60-final-system|70-system-config|75-live-tools|77-grub|80-kernel|85-initramfs) return 0 ;;
         *) return 1 ;;
     esac
 }
