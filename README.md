@@ -39,7 +39,7 @@ Compiles everything from source following LFS 12.3. Stages:
 00-host-check → 10-partition → 20-fetch-sources → 21-layout →
 22-lfs-user → 23-env → 30-cross-toolchain → 40-temp-tools →
 50-chroot-prep → 51-chroot-tools → 60-final-system →
-70-system-config → 75-live-tools → 76-pacman → 77-grub →
+70-system-config → 75-live-tools → 77-grub →
 80-kernel → 85-initramfs → 90-live-iso → 91-release
 ```
 
@@ -83,7 +83,6 @@ stages/
   60-final-system.sh      Ch. 8: ~70 final-system packages
   70-system-config.sh     Ch. 9: /etc config (fstab, hostname, profile)
   75-live-tools.sh        Live ISO utilities
-  76-pacman.sh            Pacman package manager
   77-grub.sh              GRUB bootloader
   80-kernel.sh            Linux kernel (NVMe, EFI, squashfs built-in)
   85-initramfs.sh         Initramfs (dual-mode: live + real-disk boot)
@@ -119,7 +118,7 @@ Binary mode additionally requires:
 - **Idempotency**: each package writes a marker file after success. Re-running
   skips completed work. `--force` clears markers.
 - **Dual build mode**: `50-chroot-prep.sh` detects `BUILD_MODE` and runs
-  either source stages (51/60/70/75/76/77/80/85) or binary stages
+  either source stages (51/60/70/75/77/80/85) or binary stages
   (35/36/70/80/85) inside the chroot.
 - **NVMe support**: kernel config enables `BLK_DEV_NVME` and `NVME_CORE`
   built-in. Initramfs loads nvme modules and scans all NVMe device paths.

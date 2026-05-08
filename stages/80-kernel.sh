@@ -132,7 +132,7 @@ build_kernel() {
     log "kernel ${kver} installed to /boot and /lib/modules/${kver}"
 }
 
-build_pkg 80.kernel "linux-6." build_kernel
+build_pkg 80.kernel "linux-7." build_kernel
 
 log "kernel stage complete"
 log "NEXT: install a bootloader (e.g. GRUB) and create /boot/grub/grub.cfg pointing at /boot/vmlinuz-*-gozjaro."
