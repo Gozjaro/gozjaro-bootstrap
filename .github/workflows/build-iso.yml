@@ -51,38 +51,39 @@ jobs:
           echo "BUILD_MODE=$BUILD_MODE" >> $GITHUB_ENV
           echo "==> Build mode: $BUILD_MODE"
 
-      - name: Setup LFS loopback partition
+      - name: Setup LFS directory
         run: |
           set -euo pipefail
 
           LFS="${{ env.LFS }}"
-          LFS_SIZE="${{ env.LFS_SIZE }}"
 
           # Check current user and privileges
           echo "Running as: $(whoami) (UID: $(id -u))"
 
           # Create LFS directory if it doesn't exist
+          # This should be a host-mounted writable volume
           mkdir -p "$LFS"
 
-          # Check if LFS is already mounted
-          if mountpoint -q "$LFS" 2>/dev/null; then
-            echo "LFS is already mounted at $LFS"
+          # Verify we can write to LFS
+          touch "$LFS/.write_test" && rm "$LFS/.write_test" || \
+            die "Cannot write to $LFS - ensure the volume is mounted with write permissions"
+
+          # Check if LFS image exists (for loopback mode)
+          IMAGE="$LFS/lfs.img"
+          if [[ -f "$IMAGE" ]]; then
+            echo "Using existing LFS image: $IMAGE"
           else
-            IMAGE="$LFS/lfs.img"
-
-            # Check if we have an existing image
-            if [[ -f "$IMAGE" ]]; then
-              echo "Using existing LFS image: $IMAGE"
+            # Try to create loopback image (may fail in unprivileged container)
+            echo "Attempting to create loopback image..."
+            if truncate -s "${{ env.LFS_SIZE }}" "$IMAGE" 2>/dev/null && \
+               mkfs.ext4 -F -L lfs "$IMAGE" 2>/dev/null && \
+               mount -o loop "$IMAGE" "$LFS" 2>/dev/null; then
+              echo "Loopback image created and mounted successfully."
             else
-              echo "Creating ${LFS_SIZE} loopback image..."
-              truncate -s "$LFS_SIZE" "$IMAGE"
-              mkfs.ext4 -F -L lfs "$IMAGE"
-              echo "New LFS image created and formatted."
+              echo "WARNING: Could not create loopback image."
+              echo "The LFS directory must be pre-formatted and mounted on the host."
+              echo "See README for runner setup instructions."
             fi
-
-            # Mount the image
-            mount -o loop "$IMAGE" "$LFS"
-            echo "Mounted $IMAGE at $LFS"
           fi
 
           # Verify mount
