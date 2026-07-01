@@ -1,0 +1,221 @@
+name: Build Gozjaro Live ISO
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: 'Build mode'
+        type: choice
+        default: source
+        options:
+          - source
+          - binary
+      gozpak_repos:
+        description: 'Gozpak repository URL (only for binary mode)'
+        type: string
+        default: ''
+  push:
+    branches: [main, master]
+    paths:
+      - 'stages/**'
+      - 'config/**'
+      - 'lib/**'
+      - 'build.sh'
+      - '.github/workflows/build-iso.yml'
+
+permissions:
+  contents: write
+
+env:
+  LFS: /mnt/lfs
+  LFS_SIZE: 50G
+  MAKEFLAGS: "-j$(nproc)"
+
+jobs:
+  build-iso:
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine build mode
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            BUILD_MODE="${{ github.event.inputs.build_mode || 'source' }}"
+          else
+            BUILD_MODE="source"
+          fi
+          echo "BUILD_MODE=$BUILD_MODE" >> $GITHUB_ENV
+          echo "==> Build mode: $BUILD_MODE"
+
+      - name: Setup LFS loopback partition
+        run: |
+          set -euo pipefail
+
+          LFS="${{ env.LFS }}"
+          LFS_SIZE="${{ env.LFS_SIZE }}"
+
+          # Create LFS directory if it doesn't exist
+          sudo mkdir -p "$LFS"
+
+          # Check if LFS is already mounted
+          if mountpoint -q "$LFS" 2>/dev/null; then
+            echo "LFS is already mounted at $LFS"
+          else
+            IMAGE="$LFS/lfs.img"
+
+            # Check if we have an existing image
+            if [[ -f "$IMAGE" ]]; then
+              echo "Using existing LFS image: $IMAGE"
+            else
+              echo "Creating ${LFS_SIZE} loopback image..."
+              sudo truncate -s "$LFS_SIZE" "$IMAGE"
+              sudo mkfs.ext4 -F -L lfs "$IMAGE"
+              echo "New LFS image created and formatted."
+            fi
+
+            # Mount the image
+            sudo mount -o loop "$IMAGE" "$LFS"
+            echo "Mounted $IMAGE at $LFS"
+          fi
+
+          # Verify mount
+          df -h "$LFS"
+          echo "LFS partition ready at $LFS"
+
+      - name: Host prerequisite check
+        run: |
+          set -euo pipefail
+
+          REQUIRED_TOOLS=(
+            gcc g++ make bison flex patch
+            gzip bzip2 xz wget curl
+            grep sed awk sort tr
+            tar cpio mkisofs xorriso
+            mksquashfs unsquashfs
+            util-linux dosfstools mtools
+            binutils diffutils findutils
+            gawk info m4 perl python3
+            texinfo
+          )
+
+          MISSING=()
+          for tool in "${REQUIRED_TOOLS[@]}"; do
+            if ! command -v "$tool" &>/dev/null; then
+              MISSING+=("$tool")
+            fi
+          done
+
+          if [[ ${#MISSING[@]} -gt 0 ]]; then
+            echo "::error::Missing required tools: ${MISSING[*]}"
+            echo "Install them before running this workflow."
+            exit 1
+          fi
+
+          echo "All host prerequisites satisfied:"
+          echo "  Kernel: $(uname -r) ($(uname -m))"
+          echo "  CPUs:   $(nproc)"
+          echo "  Memory: $(free -h | awk '/^Mem:/{print $2}')"
+          echo "  Disk:   $(df -h '${{ env.LFS }}' | awk 'NR==2{print $4}')"
+
+      - name: Run full build (source mode)
+        if: env.BUILD_MODE == 'source'
+        run: |
+          set -euo pipefail
+
+          cd "${{ github.workspace }}"
+
+          echo "==> Starting Gozjaro LFS build (source mode)"
+          echo "    LFS: ${{ env.LFS }}"
+          echo "    Jobs: ${{ env.MAKEFLAGS }}"
+          echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          sudo "./build.sh" all
+
+          echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Run full build (binary mode)
+        if: env.BUILD_MODE == 'binary'
+        run: |
+          set -euo pipefail
+
+          cd "${{ github.workspace }}"
+
+          GOZPAK_REPOS="${{ github.event.inputs.gozpak_repos || '' }}"
+          if [[ -z "$GOZPAK_REPOS" ]]; then
+            echo "::error::Binary mode requires GOZPAK_REPOS to be set"
+            exit 1
+          fi
+
+          echo "==> Starting Gozjaro LFS build (binary mode)"
+          echo "    LFS: ${{ env.LFS }}"
+          echo "    Jobs: ${{ env.MAKEFLAGS }}"
+          echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          sudo GOZPAK_REPOS="$GOZPAK_REPOS" "./build.sh" --mode binary all
+
+          echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Collect build logs
+        if: always()
+        run: |
+          set -euo pipefail
+
+          LOG_DIR="${{ env.LFS }}/var/gozjaro/log"
+          if [[ -d "$LOG_DIR" ]]; then
+            echo "=== Build Log Summary ==="
+            ls -lh "$LOG_DIR"/*.log 2>/dev/null | tail -20
+            echo ""
+            echo "=== Final Stage Log ==="
+            FINAL_LOG=$(ls -t "$LOG_DIR"/*.log 2>/dev/null | head -1)
+            if [[ -n "$FINAL_LOG" ]]; then
+              tail -50 "$FINAL_LOG"
+            fi
+          else
+            echo "No build logs found at $LOG_DIR"
+          fi
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gozjaro-live-${{ github.sha }}
+          path: |
+            ${{ env.LFS }}/gozjaro-*-live.iso
+            ${{ env.LFS }}/gozjaro-*-live.iso.*
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Publish to GitHub Release
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        run: |
+          set -euo pipefail
+
+          ISO_DIR="${{ env.LFS }}"
+          shopt -s nullglob
+          isos=("$ISO_DIR"/gozjaro-*-live.iso)
+          shopt -u nullglob
+
+          if [[ ${#isos[@]} -eq 0 ]]; then
+            echo "::warning::No ISO found to publish"
+            exit 0
+          fi
+
+          ISO="${isos[-1]}"
+          ISO_FILE=$(basename "$ISO")
+          echo "Publishing: $ISO_FILE"
+
+          # Derive release tag
+          TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//')
+
+          # Create or update release
+          gh release create "$TAG" \
+            --title "Gozjaro Linux $TAG" \
+            --generate-notes \
+            --draft \
+            "$ISO"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
