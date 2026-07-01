@@ -149,6 +149,51 @@ jobs:
           echo "  Memory: $(free -h | awk '/^Mem:/{print $2}')"
           echo "  Disk:   $(df -h '${{ env.LFS }}' | awk 'NR==2{print $4}')"
 
+      - name: Fix coreutils and shell aliases
+        run: |
+          set -euo pipefail
+
+          # Check if sort is from GNU coreutils or uutils
+          SORT_VER=$(sort --version 2>&1 || true)
+          echo "sort version: $SORT_VER"
+
+          if echo "$SORT_VER" | grep -qi "uutils"; then
+            echo "::warning::uutils coreutils detected. Fixing symlinks..."
+
+            # The system has GNU coreutils but symlinks were overwritten by cargo
+            # Remove broken symlinks and reinstall coreutils to restore them
+            sudo rm -f /usr/bin/sort /usr/bin/cut /usr/bin/date /usr/bin/echo /usr/bin/env
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq coreutils bash grep findutils
+
+            # If dpkg didn't restore, manually fix sort
+            if sort --version 2>&1 | grep -qi "uutils"; then
+              echo "Manually fixing sort symlink..."
+              sudo rm -f /usr/bin/sort
+              # GNU coreutils multi-call binary can handle it
+              sudo ln -sf /usr/bin/coreutils /usr/bin/sort
+            fi
+          fi
+
+          # Ensure sh points to bash
+          if [ -L /bin/sh ]; then
+            TARGET=$(readlink -f /bin/sh)
+            if echo "$TARGET" | grep -qi bash; then
+              echo "sh is already linked to bash: $TARGET"
+            else
+              echo "Changing sh symlink to point to bash"
+              sudo ln -sf /bin/bash /bin/sh
+            fi
+          elif [ ! -e /bin/sh ]; then
+            echo "Creating sh symlink to bash"
+            sudo ln -sf /bin/bash /bin/sh
+          fi
+
+          # Verify fixes
+          echo "sort version: $(sort --version | head -1)"
+          echo "sh points to: $(readlink -f /bin/sh)"
+          alias sh 2>/dev/null || echo "sh is not aliased"
+
       - name: Run full build (source mode)
         if: env.BUILD_MODE == 'source'
         run: |
