@@ -94,16 +94,29 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Check for actual command names, not package names
           REQUIRED_TOOLS=(
+            # Build tools
             gcc g++ make bison flex patch
+            # Compression
             gzip bzip2 xz wget curl
+            # Core utils (common commands)
             grep sed awk sort tr
-            tar cpio mkisofs xorriso
+            tar cpio mkfs.vfat xorriso
+            # SquashFS
             mksquashfs unsquashfs
-            util-linux dosfstools mtools
-            binutils diffutils findutils
-            gawk info m4 perl python3
-            texinfo
+            # Disk tools (commands from util-linux, dosfstools, mtools)
+            lsblk mount fdisk sfdisk
+            # Binutils
+            ld as
+            # Diff tools
+            diff cmp
+            # Find tools
+            find xargs
+            # Text/info tools
+            gawk info m4 perl python3 texi2any
+            # ISO/EFI tools
+            mformat mlabel mkdosfs
           )
 
           MISSING=()
@@ -115,7 +128,10 @@ jobs:
 
           if [[ ${#MISSING[@]} -gt 0 ]]; then
             echo "::error::Missing required tools: ${MISSING[*]}"
-            echo "Install them before running this workflow."
+            echo ""
+            echo "Install missing tools with:"
+            echo "  Ubuntu/Debian: sudo apt install -y gcc g++ make bison flex patch gzip bzip2 xz-utils wget curl grep sed gawk tar cpio xorriso squashfs-tools dosfstools mtools binutils diffutils findutils texinfo"
+            echo "  Fedora: sudo dnf install -y gcc gcc-c++ make bison flex patch gzip bzip2 xz wget curl grep gawk tar cpio xorriso squashfs-util dosfstools mtools binutils diffutils findutils texinfo"
             exit 1
           fi
 
