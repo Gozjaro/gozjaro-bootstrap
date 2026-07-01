@@ -58,8 +58,11 @@ jobs:
           LFS="${{ env.LFS }}"
           LFS_SIZE="${{ env.LFS_SIZE }}"
 
+          # Check current user and privileges
+          echo "Running as: $(whoami) (UID: $(id -u))"
+
           # Create LFS directory if it doesn't exist
-          sudo mkdir -p "$LFS"
+          mkdir -p "$LFS"
 
           # Check if LFS is already mounted
           if mountpoint -q "$LFS" 2>/dev/null; then
@@ -72,13 +75,13 @@ jobs:
               echo "Using existing LFS image: $IMAGE"
             else
               echo "Creating ${LFS_SIZE} loopback image..."
-              sudo truncate -s "$LFS_SIZE" "$IMAGE"
-              sudo mkfs.ext4 -F -L lfs "$IMAGE"
+              truncate -s "$LFS_SIZE" "$IMAGE"
+              mkfs.ext4 -F -L lfs "$IMAGE"
               echo "New LFS image created and formatted."
             fi
 
             # Mount the image
-            sudo mount -o loop "$IMAGE" "$LFS"
+            mount -o loop "$IMAGE" "$LFS"
             echo "Mounted $IMAGE at $LFS"
           fi
 
@@ -133,7 +136,7 @@ jobs:
           echo "    Jobs: ${{ env.MAKEFLAGS }}"
           echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          sudo "./build.sh" all
+          "./build.sh" all
 
           echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -155,7 +158,7 @@ jobs:
           echo "    Jobs: ${{ env.MAKEFLAGS }}"
           echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          sudo GOZPAK_REPOS="$GOZPAK_REPOS" "./build.sh" --mode binary all
+          GOZPAK_REPOS="$GOZPAK_REPOS" "./build.sh" --mode binary all
 
           echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
