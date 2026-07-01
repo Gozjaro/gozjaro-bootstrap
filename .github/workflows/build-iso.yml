@@ -33,7 +33,7 @@ env:
 
 jobs:
   build-iso:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
