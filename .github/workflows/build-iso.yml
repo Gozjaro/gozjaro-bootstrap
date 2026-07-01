@@ -60,12 +60,20 @@ jobs:
           # Check current user and privileges
           echo "Running as: $(whoami) (UID: $(id -u))"
 
+          # Function to run commands with sudo if needed
+          run_cmd() {
+            if [ "$(id -u)" = "0" ]; then
+              "$@"
+            else
+              sudo "$@"
+            fi
+          }
+
           # Create LFS directory if it doesn't exist
-          # This should be a host-mounted writable volume
-          mkdir -p "$LFS"
+          run_cmd mkdir -p "$LFS"
 
           # Verify we can write to LFS
-          touch "$LFS/.write_test" && rm "$LFS/.write_test" || \
+          run_cmd touch "$LFS/.write_test" && run_cmd rm "$LFS/.write_test" || \
             die "Cannot write to $LFS - ensure the volume is mounted with write permissions"
 
           # Check if LFS image exists (for loopback mode)
@@ -73,11 +81,11 @@ jobs:
           if [[ -f "$IMAGE" ]]; then
             echo "Using existing LFS image: $IMAGE"
           else
-            # Try to create loopback image (may fail in unprivileged container)
+            # Try to create loopback image
             echo "Attempting to create loopback image..."
-            if truncate -s "${{ env.LFS_SIZE }}" "$IMAGE" 2>/dev/null && \
-               mkfs.ext4 -F -L lfs "$IMAGE" 2>/dev/null && \
-               mount -o loop "$IMAGE" "$LFS" 2>/dev/null; then
+            if run_cmd truncate -s "${{ env.LFS_SIZE }}" "$IMAGE" 2>/dev/null && \
+               run_cmd mkfs.ext4 -F -L lfs "$IMAGE" 2>/dev/null && \
+               run_cmd mount -o loop "$IMAGE" "$LFS" 2>/dev/null; then
               echo "Loopback image created and mounted successfully."
             else
               echo "WARNING: Could not create loopback image."
@@ -153,7 +161,8 @@ jobs:
           echo "    Jobs: ${{ env.MAKEFLAGS }}"
           echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          "./build.sh" all
+          # Use sudo - the build requires root privileges
+          sudo "./build.sh" all
 
           echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -175,7 +184,7 @@ jobs:
           echo "    Jobs: ${{ env.MAKEFLAGS }}"
           echo "    Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          GOZPAK_REPOS="$GOZPAK_REPOS" "./build.sh" --mode binary all
+          sudo GOZPAK_REPOS="$GOZPAK_REPOS" "./build.sh" --mode binary all
 
           echo "==> Build completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
