@@ -33,16 +33,13 @@ while IFS= read -r url; do
     idx=$((idx + 1))
     fn="${url##*/}"
 
-    if [ -s "$fn" ]; then
-        logline "[$idx/$total] have $fn"
-        continue
-    fi
-
     logline "[$idx/$total] fetching $fn"
     ok=0
     for try in 1 2 3; do
+        # Force fresh download: remove stale/partial files, no --continue
+        rm -f "$fn"
         # Direct terminal output: no pipe, no tee. Progress bar is live.
-        if wget --continue --timeout=30 --tries=1 \
+        if wget --timeout=30 --tries=1 \
                 --progress=bar:force:noscroll \
                 "$url"; then
             ok=1
