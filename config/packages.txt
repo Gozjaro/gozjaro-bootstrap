@@ -11,10 +11,10 @@ https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz
 https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
 https://mirrors.kernel.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
 https://mirrors.kernel.org/gnu/diffutils/diffutils-3.11.tar.xz
-https://mirrors.kernel.org/sourceforge/e/2/e/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
+https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
 https://sourceware.org/ftp/elfutils/0.192/elfutils-0.192.tar.bz2
 https://github.com/libexpat/libexpat/releases/download/R_2_7_0/expat-2.7.0.tar.xz
-https://prdownloads.sourceforge.net/expect/expect5.45.4.tar.gz
+https://downloads.sourceforge.net/project/expect/expect/Expect%205.45.4/expect5.45.4.tar.gz
 https://astron.com/pub/file/file-5.46.tar.gz
 https://mirrors.kernel.org/gnu/findutils/findutils-4.10.0.tar.xz
 https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz
@@ -69,8 +69,8 @@ https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1
 https://mirrors.kernel.org/gnu/patch/patch-2.7.6.tar.xz
 https://www.cpan.org/src/5.0/perl-5.40.1.tar.xz
 https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz
-https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.5.tar.xz
-https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-23.7.tar.xz
+https://downloads.sourceforge.net/project/procps-ng/procps-ng/Production/procps-ng-4.0.5.tar.xz
+https://downloads.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
 https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tar.xz
 https://mirrors.kernel.org/gnu/readline/readline-8.2.13.tar.gz
 https://mirrors.kernel.org/gnu/sed/sed-4.9.tar.xz
@@ -78,7 +78,7 @@ https://pypi.org/packages/source/s/setuptools/setuptools-75.8.1.tar.gz
 https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
 https://github.com/systemd/systemd/archive/v256.11/systemd-256.11.tar.gz
 https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
-https://mirrors.kernel.org/sourceforge/t/c/T/c/tcl/tcl8.6.16-src.tar.gz
+https://prdownloads.sourceforge.net/tcl/tcl8.6.16-src.tar.gz
 https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
 https://www.iana.org/time-zones/repository/releases/tzdata2025a.tar.gz
 https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
