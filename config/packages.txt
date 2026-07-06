@@ -11,7 +11,7 @@ https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz
 https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
 https://mirrors.kernel.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
 https://mirrors.kernel.org/gnu/diffutils/diffutils-3.11.tar.xz
-https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
+https://mirrors.kernel.org/sourceforge/e/2/e/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
 https://sourceware.org/ftp/elfutils/0.192/elfutils-0.192.tar.bz2
 https://github.com/libexpat/libexpat/releases/download/R_2_7_0/expat-2.7.0.tar.xz
 https://prdownloads.sourceforge.net/expect/expect5.45.4.tar.gz
@@ -78,7 +78,7 @@ https://pypi.org/packages/source/s/setuptools/setuptools-75.8.1.tar.gz
 https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
 https://github.com/systemd/systemd/archive/v256.11/systemd-256.11.tar.gz
 https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
-https://downloads.sourceforge.net/tcl/tcl8.6.16-src.tar.gz
+https://mirrors.kernel.org/sourceforge/t/c/T/c/tcl/tcl8.6.16-src.tar.gz
 https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
 https://www.iana.org/time-zones/repository/releases/tzdata2025a.tar.gz
 https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
