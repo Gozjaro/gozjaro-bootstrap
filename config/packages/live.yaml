@@ -1,0 +1,4 @@
+# Gozjaro Live Environment Packages
+# Packages for the live environment (to be populated when live ISO targets are defined).
+
+packages: []

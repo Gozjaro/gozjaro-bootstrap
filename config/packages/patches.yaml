@@ -1,0 +1,29 @@
+# Gozjaro Patches
+# LFS-maintained patches used across multiple packages.
+# Each patch can be applied to one or more packages.
+
+patches:
+  - name: bzip2-1.0.8-install_docs-1.patch
+    package: bzip2
+    url: https://www.linuxfromscratch.org/patches/lfs/12.3/bzip2-1.0.8-install_docs-1.patch
+    strip: 0
+
+  - name: coreutils-9.6-i18n-1.patch
+    package: coreutils
+    url: https://www.linuxfromscratch.org/patches/lfs/12.3/coreutils-9.6-i18n-1.patch
+    strip: 1
+
+  - name: expect-5.45.4-gcc14-1.patch
+    package: expect
+    url: https://www.linuxfromscratch.org/patches/lfs/12.3/expect-5.45.4-gcc14-1.patch
+    strip: 0
+
+  - name: glibc-2.41-fhs-1.patch
+    package: glibc
+    url: https://www.linuxfromscratch.org/patches/lfs/12.3/glibc-2.41-fhs-1.patch
+    strip: 1
+
+  - name: kbd-2.7.1-backspace-1.patch
+    package: kbd
+    url: https://www.linuxfromscratch.org/patches/lfs/12.3/kbd-2.7.1-backspace-1.patch
+    strip: 0

@@ -1,0 +1,1111 @@
+# Gozjaro Base Packages (LFS 12.3 equivalent)
+# Core packages required for a minimal working system.
+
+packages:
+  - name: acl
+    version: "2.3.2"
+    category: base
+    source:
+      url: https://download.savannah.gnu.org/releases/acl/acl-2.3.2.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+      install_check: getfacl --version
+    dependencies:
+      - attr
+
+  - name: attr
+    version: "2.5.2"
+    category: base
+    source:
+      url: https://download.savannah.gnu.org/releases/attr/attr-2.5.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+      install_check: getfattr --version
+    dependencies: []
+
+  - name: autoconf
+    version: "2.72"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/autoconf/autoconf-2.72.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: autoconf --version
+    dependencies: []
+
+  - name: automake
+    version: "1.17"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/automake/automake-1.17.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --docdir=/usr/share/doc/automake-1.17
+      install_check: automake --version
+    dependencies:
+      - perl
+
+  - name: bash
+    version: "5.2.37"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/bash/bash-5.2.37.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --without-bash-malloc
+        - --with-installed-readline
+        - --docdir=/usr/share/doc/bash-5.2.37
+      install_check: bash --version
+    dependencies:
+      - readline
+      - ncurses
+
+  - name: bc
+    version: "7.0.3"
+    category: base
+    source:
+      url: https://github.com/gavinhoward/bc/releases/download/7.0.3/bc-7.0.3.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - CC=gcc
+        - --prefix=/usr
+        - -G
+        - -O3
+        - -r
+      install_check: bc --version
+    dependencies: []
+
+  - name: binutils
+    version: "2.44"
+    category: base
+    source:
+      url: https://sourceware.org/pub/binutils/releases/binutils-2.44.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc
+        - --enable-ld=default
+        - --enable-plugins
+        - --enable-shared
+        - --disable-werror
+        - --enable-64-bit-bfd
+        - --enable-new-dtags
+        - --with-system-zlib
+        - --enable-default-hash-style=gnu
+      install_check: ld --version
+    dependencies: []
+
+  - name: bison
+    version: "3.8.2"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/bison/bison-3.8.2.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --docdir=/usr/share/doc/bison-3.8.2
+      install_check: bison --version
+    dependencies: []
+
+  - name: bzip2
+    version: "1.0.8"
+    category: base
+    source:
+      url: https://www.sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    patches:
+      - name: bzip2-1.0.8-install_docs-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/12.3/bzip2-1.0.8-install_docs-1.patch
+        strip: 0
+    build:
+      system: make
+      install_check: bzip2 --version
+    dependencies: []
+
+  - name: check
+    version: "0.15.2"
+    category: base
+    source:
+      url: https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+      install_check: chk--version
+    dependencies: []
+
+  - name: coreutils
+    version: "9.6"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    patches:
+      - name: coreutils-9.6-i18n-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/12.3/coreutils-9.6-i18n-1.patch
+        strip: 1
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-no-install-program=kill,uptime
+      install_check: ls --version
+    dependencies: []
+
+  - name: dejagnu
+    version: "1.6.3"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: dejagnu --version
+    dependencies: []
+
+  - name: diffutils
+    version: "3.11"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/diffutils/diffutils-3.11.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: diff --version
+    dependencies: []
+
+  - name: e2fsprogs
+    version: "1.47.2"
+    category: base
+    source:
+      url: https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc
+        - --enable-elf-shlibs
+        - --disable-libblkid
+        - --disable-libuuid
+        - --disable-uuidd
+        - --disable-fsck
+      install_check: e2fsck -V
+    dependencies: []
+
+  - name: elfutils
+    version: "0.192"
+    category: base
+    source:
+      url: https://sourceware.org/ftp/elfutils/0.192/elfutils-0.192.tar.bz2
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-debuginfod
+        - --enable-libdebuginfod=dummy
+      install_check: eu-elfclassify --version
+    dependencies: []
+
+  - name: expat
+    version: "2.7.0"
+    category: base
+    source:
+      url: https://github.com/libexpat/libexpat/releases/download/R_2_7_0/expat-2.7.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --docdir=/usr/share/doc/expat-2.7.0
+      install_check: xmlwf -v
+    dependencies: []
+
+  - name: expect
+    version: "5.45.4"
+    category: base
+    source:
+      url: https://downloads.sourceforge.net/project/expect/expect/Expect%205.45.4/expect5.45.4.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    patches:
+      - name: expect-5.45.4-gcc14-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/12.3/expect-5.45.4-gcc14-1.patch
+        strip: 0
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --with-tcl=/usr/lib
+        - --enable-shared
+        - --disable-rpath
+        - --mandir=/usr/share/man
+        - --with-tclinclude=/usr/include
+      install_check: expect -v
+    dependencies:
+      - tcl
+      - python3
+
+  - name: file
+    version: "5.46"
+    category: base
+    source:
+      url: https://astron.com/pub/file/file-5.46.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: file --version
+    dependencies: []
+
+  - name: findutils
+    version: "4.10.0"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/findutils/findutils-4.10.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --localstatedir=/var/lib/locate
+      install_check: find --version
+    dependencies: []
+
+  - name: flex
+    version: "2.6.4"
+    category: base
+    source:
+      url: https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --docdir=/usr/share/doc/flex-2.6.4
+        - --disable-static
+      install_check: flex --version
+    dependencies: []
+
+  - name: flit-core
+    version: "3.11.0"
+    category: base
+    source:
+      url: https://pypi.org/packages/source/f/flit-core/flit_core-3.11.0.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -m flit_core.wheel
+    dependencies:
+      - python3
+
+  - name: gawk
+    version: "5.3.1"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gawk/gawk-5.3.1.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: gawk --version
+    dependencies: []
+
+  - name: gcc
+    version: "14.2.0"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - LD=ld
+        - --enable-languages=c,c++
+        - --enable-default-pie
+        - --enable-default-ssp
+        - --enable-host-pie
+        - --disable-multilib
+        - --disable-bootstrap
+        - --disable-fixincludes
+        - --with-system-zlib
+      install_check: gcc --version
+    dependencies:
+      - gmp
+      - mpfr
+      - mpc
+      - binutils
+
+  - name: gdbm
+    version: "1.24"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gdbm/gdbm-1.24.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --enable-libgdbm-compat
+      install_check: db_dump --version
+    dependencies: []
+
+  - name: gettext
+    version: "0.24"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gettext/gettext-0.24.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --docdir=/usr/share/doc/gettext-0.24
+      install_check: gettext --version
+    dependencies: []
+
+  - name: glibc
+    version: "2.41"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/glibc/glibc-2.41.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    patches:
+      - name: glibc-2.41-fhs-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/12.3/glibc-2.41-fhs-1.patch
+        strip: 1
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-werror
+        - --enable-kernel=4.19
+        - --enable-stack-protector=strong
+        - --disable-nscd
+        - libc_cv_slibdir=/usr/lib
+      install_check: ldconfig --version
+    dependencies: []
+
+  - name: gmp
+    version: "6.3.0"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gmp/gmp-6.3.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-cxx
+        - --disable-static
+        - --docdir=/usr/share/doc/gmp-6.3.0
+      install_check: gmp-version
+    dependencies: []
+
+  - name: gperf
+    version: "3.1"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gperf/gperf-3.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --docdir=/usr/share/doc/gperf-3.1
+      install_check: gperf -v
+    dependencies: []
+
+  - name: grep
+    version: "3.11"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/grep/grep-3.11.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: grep --version
+    dependencies: []
+
+  - name: groff
+    version: "1.23.0"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/groff/groff-1.23.0.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        PAGE=letter
+      install_check: groff --version
+    dependencies: []
+
+  - name: gzip
+    version: "1.13"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/gzip/gzip-1.13.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: gzip --version
+    dependencies: []
+
+  - name: iana-etc
+    version: "20250123"
+    category: base
+    source:
+      url: https://github.com/Mic92/iana-etc/releases/download/20250123/iana-etc-20250123.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: custom
+      install_check: cat /etc/services | head -1
+    dependencies: []
+
+  - name: inetutils
+    version: "2.6"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/inetutils/inetutils-2.6.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --bindir=/usr/bin
+        - --localstatedir=/var
+        - --disable-logger
+        - --disable-whois
+        - --disable-rcp
+        - --disable-rexec
+        - --disable-rlogin
+        - --disable-rsh
+        - --disable-servers
+      install_check: ifconfig --version
+    dependencies: []
+
+  - name: intltool
+    version: "0.51.0"
+    category: base
+    source:
+      url: https://launchpad.net/intltool/trunk/0.51.0/+download/intltool-0.51.0.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: intltool-update --version
+    dependencies:
+      - perl
+
+  - name: iproute2
+    version: "6.13.0"
+    category: base
+    source:
+      url: https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.13.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: ip --version
+    dependencies: []
+
+  - name: kbd
+    version: "2.7.1"
+    category: base
+    source:
+      url: https://www.kernel.org/pub/linux/utils/kbd/kbd-2.7.1.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    patches:
+      - name: kbd-2.7.1-backspace-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/12.3/kbd-2.7.1-backspace-1.patch
+        strip: 0
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-vlock
+      install_check: setfont --version
+    dependencies: []
+
+  - name: less
+    version: "668"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/less/less-668.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc
+      install_check: less --version
+    dependencies: []
+
+  - name: libcap
+    version: "2.73"
+    category: base
+    source:
+      url: https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.73.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: getcap --version
+    dependencies: []
+
+  - name: libffi
+    version: "3.4.7"
+    category: base
+    source:
+      url: https://github.com/libffi/libffi/releases/download/v3.4.7/libffi-3.4.7.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --with-gcc-arch=native
+      install_check: libffi-config --version
+    dependencies: []
+
+  - name: libpipeline
+    version: "1.5.8"
+    category: base
+    source:
+      url: https://download.savannah.gnu.org/releases/libpipeline/libpipeline-1.5.8.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: pipelib-config --version
+    dependencies: []
+
+  - name: libtool
+    version: "2.5.4"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/libtool/libtool-2.5.4.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: libtool --version
+    dependencies: []
+
+  - name: libxcrypt
+    version: "4.4.38"
+    category: base
+    source:
+      url: https://github.com/besser82/libxcrypt/releases/download/v4.4.38/libxcrypt-4.4.38.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-hashes=strong,glibc
+        - --enable-obsolete-api=no
+        - --disable-static
+        - --disable-failure-tokens
+      install_check: cryptsetup --version
+    dependencies: []
+
+  - name: m4
+    version: "1.4.19"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: m4 --version
+    dependencies: []
+
+  - name: make
+    version: "4.4.1"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/make/make-4.4.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: make --version
+    dependencies: []
+
+  - name: man-db
+    version: "2.13.0"
+    category: base
+    source:
+      url: https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: man --version
+    dependencies:
+      - libpipeline
+
+  - name: meson
+    version: "1.6.1"
+    category: base
+    source:
+      url: https://github.com/mesonbuild/meson/releases/download/1.6.1/meson-1.6.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: meson --version
+    dependencies:
+      - python3
+
+  - name: ninja
+    version: "1.12.1"
+    category: base
+    source:
+      url: https://github.com/ninja-build/ninja/archive/v1.12.1/ninja-1.12.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: custom
+      install_check: ninja --version
+    dependencies: []
+
+  - name: ncurses
+    version: "6.5"
+    category: base
+    source:
+      url: https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --mandir=/usr/share/man
+        - --with-shared
+        - --without-debug
+        - --without-normal
+        - --with-cxx-shared
+        - --enable-pc-files
+        - --with-pkg-config-libdir=/usr/lib/pkgconfig
+      install_check: ncursesw-config --version
+    dependencies: []
+
+  - name: patch
+    version: "2.7.6"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/patch/patch-2.7.6.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: patch --version
+    dependencies: []
+
+  - name: procps-ng
+    version: "4.0.5"
+    category: base
+    source:
+      url: https://downloads.sourceforge.net/project/procps-ng/procps-ng/Production/procps-ng-4.0.5.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --docdir=/usr/share/doc/procps-ng-4.0.5
+        - --disable-static
+        - --disable-kill
+      install_check: ps --version
+    dependencies: []
+
+  - name: sed
+    version: "4.9"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/sed/sed-4.9.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: sed --version
+    dependencies: []
+
+  - name: shadow
+    version: "4.17.3"
+    category: base
+    source:
+      url: https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --sysconfdir=/etc
+        - --disable-static
+        - --with-bcrypt
+        - --with-yescrypt
+        - --without-libbsd
+        - --with-group-name-max-length=32
+      install_check: passwd --version
+    dependencies: []
+
+  - name: tar
+    version: "1.35"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: tar --version
+    dependencies: []
+
+  - name: texinfo
+    version: "7.2"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: texi2any --version
+    dependencies: []
+
+  - name: tzdata
+    version: "2025a"
+    category: base
+    source:
+      url: https://www.iana.org/time-zones/repository/releases/tzdata2025a.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: zdump --version
+    dependencies: []
+
+  - name: util-linux
+    version: "2.40.4"
+    category: base
+    source:
+      url: https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --bindir=/usr/bin
+        - --libdir=/usr/lib
+        - --runstatedir=/run
+        - --sbindir=/usr/sbin
+        - --disable-chfn-chsh
+        - --disable-login
+        - --disable-nologin
+        - --disable-su
+        - --disable-setpriv
+        - --disable-runuser
+        - --disable-pylibmount
+        - --disable-static
+        - --disable-liblastlog2
+        - --without-python
+        - --docdir=/usr/share/doc/util-linux-2.40.4
+        - ADJTIME_PATH=/var/lib/hwclock/adjtime
+      install_check: lsblk --version
+    dependencies: []
+
+  - name: xz
+    version: "5.6.4"
+    category: base
+    source:
+      url: https://github.com/tukaani-project/xz/releases/download/v5.6.4/xz-5.6.4.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --docdir=/usr/share/doc/xz-5.6.4
+      install_check: xz --version
+    dependencies: []
+
+  - name: zlib
+    version: "1.3.1"
+    category: base
+    source:
+      url: https://zlib.net/fossils/zlib-1.3.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: gzip --version
+    dependencies: []
+
+  - name: zstd
+    version: "1.5.7"
+    category: base
+    source:
+      url: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: zstd --version
+    dependencies: []
+
+  - name: psmisc
+    version: "23.7"
+    category: base
+    source:
+      url: https://downloads.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: fuser --version
+    dependencies: []
+
+  - name: readline
+    version: "8.2.13"
+    category: base
+    source:
+      url: https://mirrors.kernel.org/gnu/readline/readline-8.2.13.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --with-curses
+        - --docdir=/usr/share/doc/readline-8.2.13
+      install_check: bind -q version
+    dependencies:
+      - ncurses
+
+  - name: pkgconf
+    version: "2.3.0"
+    category: base
+    source:
+      url: https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --docdir=/usr/share/doc/pkgconf-2.3.0
+      install_check: pkgconf --version
+    dependencies: []
+
+  - name: parted
+    version: "3.6"
+    category: base
+    source:
+      url: https://ftp.gnu.org/gnu/parted/parted-3.6.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: parted --version
+    dependencies: []
+
+  - name: dosfstools
+    version: "4.2"
+    category: base
+    source:
+      url: https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: fsck.vfat --version
+    dependencies: []
+
+  - name: libarchive
+    version: "3.7.7"
+    category: base
+    source:
+      url: https://github.com/libarchive/libarchive/releases/download/v3.7.7/libarchive-3.7.7.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: cmake
+      configure:
+        - -DCMAKE_INSTALL_PREFIX=/usr
+      install_check: bsdtar --version
+    dependencies: []
