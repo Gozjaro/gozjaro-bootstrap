@@ -1,0 +1,415 @@
+# Gozjaro System Packages
+# Additional packages required for the final system beyond base LFS.
+
+packages:
+  - name: curl
+    version: "8.11.1"
+    category: system
+    source:
+      url: https://curl.se/download/curl-8.11.1.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-threaded-resolver
+        - --with-openssl
+      install_check: curl --version
+    dependencies:
+      - openssl
+      - zlib
+
+  - name: dbus
+    version: "1.16.2"
+    category: system
+    source:
+      url: https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: meson
+      install_check: dbus-daemon --version
+    dependencies: []
+
+  - name: eudev
+    version: "3.2.14"
+    category: system
+    source:
+      url: https://dev.gentoo.org/bluenert/distfiles/eudev-3.2.14.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --bindir=/bin
+        - --sbindir=/sbin
+        - --libexecdir=/usr/lib
+        - --with-rootprefix=
+        - --with-rootlibdir=/usr/lib
+        - --disable-static
+      install_check: udevadm --version
+    dependencies: []
+
+  - name: git
+    version: "2.49.1"
+    category: system
+    source:
+      url: https://github.com/git/git/archive/v2.49.1/git-2.49.1.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      configure:
+        - prefix=/usr
+        - CC=gcc
+        - PERL_PATH=/usr/bin/perl
+      install_check: git --version
+    dependencies:
+      - perl
+      - openssl
+
+  - name: grub
+    version: "2.12"
+    category: system
+    source:
+      url: https://mirrors.kernel.org/gnu/grub/grub-2.12.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc
+        - --disable-grub-mkfont
+        - --disable-werror
+      install_check: grub-install --version
+    dependencies: []
+
+  - name: kmod
+    version: "34"
+    category: system
+    source:
+      url: https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc
+        - --with-openssl
+        - --with-xz
+        - --with-zstd
+        - --with-zlib
+        - --disable-manpages
+      install_check: lsmod --version
+    dependencies:
+      - openssl
+
+  - name: nano
+    version: "8.3"
+    category: system
+    source:
+      url: https://www.nano-editor.org/dist/v8/nano-8.3.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-color
+        - --enable-nanorc
+      install_check: nano --version
+    dependencies: []
+
+  - name: openssh
+    version: "9.9p2"
+    category: system
+    source:
+      url: https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.9p2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --sysconfdir=/etc/ssh
+        - --with-privsep-path=/run/sshd
+        - --with-ssl-dir=/usr
+      install_check: ssh -V
+    dependencies:
+      - openssl
+
+  - name: rsync
+    version: "3.4.1"
+    category: system
+    source:
+      url: https://download.samba.org/pub/rsync/src/rsync-3.4.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: rsync --version
+    dependencies: []
+
+  - name: systemd
+    version: "256"
+    category: system
+    source:
+      url: https://github.com/systemd/systemd/archive/v256/systemd-256.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: meson
+      install_check: systemctl --version
+    dependencies:
+      - bzip2
+      - e2fsprogs
+      - libcap
+      - libffi
+      - libpipeline
+      - ncurses
+      - openssl
+      - pcre2
+      - xz
+      - zstd
+
+  - name: wget
+    version: "1.25.0"
+    category: system
+    source:
+      url: https://gitlab.com/api/v4/projects/%22gnome%2Fwget%22/packages/generic/1.25.0/wget-1.25.0.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --with-openssl
+      install_check: wget --version
+    dependencies:
+      - openssl
+
+  - name: vim
+    version: "9.1.1166"
+    category: system
+    source:
+      url: https://github.com/vim/vim/archive/v9.1.1166/vim-9.1.1166.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: vim --version
+    dependencies: []
+
+  - name: sysvinit
+    version: "2.62"
+    category: system
+    source:
+      url: https://mirrors.edge.kernel.org/pub/linux/utils/sysvinit/sysvinit-2.62.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: telinit --version
+    dependencies: []
+
+  - name: sysklogd
+    version: "2.5.2"
+    category: system
+    source:
+      url: https://github.com/sysklogd/sysklogd/releases/download/2.5.2/sysklogd-2.5.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: syslogd -V
+    dependencies: []
+
+  - name: perl
+    version: "5.40.1"
+    category: system
+    source:
+      url: https://www.cpan.org/src/5.40/perl-5.40.1.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: custom
+      install_check: perl --version
+    dependencies: []
+
+  - name: python3
+    version: "3.13.2"
+    category: system
+    source:
+      url: https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --enable-shared
+        - --with-system-expat
+        - --enable-optimizations
+      install_check: python3 --version
+    dependencies: []
+
+  - name: openssl
+    version: "3.4.1"
+    category: system
+    source:
+      url: https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: custom
+      configure:
+        - ./config
+        - --prefix=/usr
+        - --openssldir=/etc/ssl
+        - --libdir=lib
+        - shared
+        - zlib-dynamic
+      install_check: openssl version
+    dependencies: []
+
+  - name: jinja2
+    version: "3.1.5"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/J/Jinja2/Jinja2-3.1.5.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -c "import jinja2"
+    dependencies:
+      - python3
+      - markupsafe
+
+  - name: setuptools
+    version: "75.8.0"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-75.8.0.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -c "import setuptools"
+    dependencies:
+      - python3
+
+  - name: wheel
+    version: "0.45.1"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/w/wheel/wheel-0.45.1.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -c "import wheel"
+    dependencies:
+      - python3
+
+  - name: markupsafe
+    version: "3.0.2"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-3.0.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -c "import markupsafe"
+    dependencies:
+      - python3
+
+  - name: xml-parser
+    version: "2.47"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/X/XML-Parser/XML-Parser-2.47.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -c "import XML::Parser"
+    dependencies:
+      - perl
+
+  - name: tcl
+    version: "8.6.15"
+    category: system
+    source:
+      url: https://downloads.sourceforge.net/project/tcl/Tcl/8.6.15/tcl8.6.15-src.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --mandir=/usr/share/man
+        - --disable-rpath
+      install_check: tclsh --version
+    dependencies: []
+
+  - name: flit-core
+    version: "3.12.0"
+    category: system
+    source:
+      url: https://files.pythonhosted.org/packages/source/f/flit-core/flit_core-3.12.0.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: python
+      install_check: python3 -m flit_core.wheel
+    dependencies:
+      - python3
+
+  - name: linux-firmware
+    version: "20250113"
+    category: system
+    source:
+      url: https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20250113.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: ls /usr/lib/firmware | head -1
+    dependencies: []

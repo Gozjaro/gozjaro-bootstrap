@@ -1,0 +1,28 @@
+# Gozjaro Kernel Packages
+# Kernel source and firmware definitions.
+# Version is managed separately in stages/80-kernel.sh for flexibility.
+
+packages:
+  - name: linux
+    version: "6.12"
+    category: kernel
+    source:
+      url: https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-{{ GOZJARO_KERNEL_VERSION }}.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: custom
+    dependencies: []
+
+  - name: linux-firmware
+    version: "20250113"
+    category: kernel
+    source:
+      url: https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20250113.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+    dependencies: []
