@@ -3,10 +3,10 @@
 
 packages:
   - name: curl
-    version: "8.11.1"
+    version: "8.14.1"
     category: system
     source:
-      url: https://curl.se/download/curl-8.11.1.tar.xz
+      url: https://curl.se/download/curl-8.14.1.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -38,7 +38,7 @@ packages:
     version: "3.2.14"
     category: system
     source:
-      url: https://dev.gentoo.org/bluenert/distfiles/eudev-3.2.14.tar.gz
+      url: https://github.com/torvalds/eudev/releases/download/v3.2.14/eudev-3.2.14.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -132,10 +132,10 @@ packages:
     dependencies: []
 
   - name: openssh
-    version: "9.9p2"
+    version: "10.4p1"
     category: system
     source:
-      url: https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.9p2.tar.gz
+      url: https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-10.4p1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -166,10 +166,10 @@ packages:
     dependencies: []
 
   - name: systemd
-    version: "256"
+    version: "260.2"
     category: system
     source:
-      url: https://github.com/systemd/systemd/archive/v256/systemd-256.tar.gz
+      url: https://github.com/systemd/systemd/archive/v260.2/systemd-260.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -192,7 +192,7 @@ packages:
     version: "1.25.0"
     category: system
     source:
-      url: https://gitlab.com/api/v4/projects/%22gnome%2Fwget%22/packages/generic/1.25.0/wget-1.25.0.tar.xz
+      url: https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -280,10 +280,10 @@ packages:
     dependencies: []
 
   - name: openssl
-    version: "3.4.1"
+    version: "3.5.1"
     category: system
     source:
-      url: https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+      url: https://github.com/openssl/openssl/releases/download/openssl-3.5.1/openssl-3.5.1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -300,10 +300,10 @@ packages:
     dependencies: []
 
   - name: jinja2
-    version: "3.1.5"
+    version: "3.1.6"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/J/Jinja2/Jinja2-3.1.5.tar.gz
+      url: https://files.pythonhosted.org/packages/source/j/jinja2/jinja2-3.1.6.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -315,10 +315,10 @@ packages:
       - markupsafe
 
   - name: setuptools
-    version: "75.8.0"
+    version: "83.0.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-75.8.0.tar.gz
+      url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-83.0.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -329,10 +329,10 @@ packages:
       - python3
 
   - name: wheel
-    version: "0.45.1"
+    version: "0.47.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/w/wheel/wheel-0.45.1.tar.gz
+      url: https://files.pythonhosted.org/packages/source/w/wheel/wheel-0.47.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -343,10 +343,10 @@ packages:
       - python3
 
   - name: markupsafe
-    version: "3.0.2"
+    version: "3.0.3"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-3.0.2.tar.gz
+      url: https://files.pythonhosted.org/packages/source/m/markupsafe/markupsafe-3.0.3.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -360,7 +360,7 @@ packages:
     version: "2.47"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/X/XML-Parser/XML-Parser-2.47.tar.gz
+      url: https://files.pythonhosted.org/packages/source/x/XML-Parser/XML-Parser-2.47.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -400,16 +400,3 @@ packages:
       install_check: python3 -m flit_core.wheel
     dependencies:
       - python3
-
-  - name: linux-firmware
-    version: "20250113"
-    category: system
-    source:
-      url: https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20250113.tar.xz
-      checksum:
-        type: sha256
-        value: ""
-    build:
-      system: make
-      install_check: ls /usr/lib/firmware | head -1
-    dependencies: []

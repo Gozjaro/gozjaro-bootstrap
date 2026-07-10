@@ -288,7 +288,7 @@ packages:
     version: "5.45.4"
     category: base
     source:
-      url: https://downloads.sourceforge.net/project/expect/expect/Expect%205.45.4/expect5.45.4.tar.gz
+      url: https://sourceforge.net/projects/expect/files/Expect%205.45.4/expect5.45.4.tar.gz/download
       checksum:
         type: sha256
         value: ""
