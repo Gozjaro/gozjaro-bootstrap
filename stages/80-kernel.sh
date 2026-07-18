@@ -77,7 +77,7 @@ build_kernel() {
         --enable DRM_FBDEV_EMULATION
 
     # Storage host-controller drivers — required for disk detection on real
-    # hardware and in virtual machines (VMware, VirtualBox, QEMU/KVM).
+    # hardware and in virtual machines (VMware, VirtualBox, QEMU/KVM, Hyper-V).
     # Without these, the kernel knows how to USE disks (BLK_DEV_SD) but
     # cannot discover them because the controllers are never enumerated.
     ./scripts/config \
@@ -91,7 +91,9 @@ build_kernel() {
         --enable VIRTIO_PCI \
         --enable VIRTIO_BLK \
         --enable VIRTIO_SCSI \
-        --enable VMWARE_PVSCSI
+        --enable VMWARE_PVSCSI \
+        --enable HYPERV \
+        --enable HYPERV_STORAGE
 
     # Options required by systemd.
     ./scripts/config \
