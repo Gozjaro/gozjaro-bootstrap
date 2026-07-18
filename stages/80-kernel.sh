@@ -76,6 +76,23 @@ build_kernel() {
         --enable DRM \
         --enable DRM_FBDEV_EMULATION
 
+    # Storage host-controller drivers — required for disk detection on real
+    # hardware and in virtual machines (VMware, VirtualBox, QEMU/KVM).
+    # Without these, the kernel knows how to USE disks (BLK_DEV_SD) but
+    # cannot discover them because the controllers are never enumerated.
+    ./scripts/config \
+        --enable PCI \
+        --enable PCI_MSI \
+        --enable ATA \
+        --enable SATA_AHCI \
+        --enable ATA_PIIX \
+        --enable SCSI_LOWLEVEL \
+        --enable VIRTIO \
+        --enable VIRTIO_PCI \
+        --enable VIRTIO_BLK \
+        --enable VIRTIO_SCSI \
+        --enable VMWARE_PVSCSI
+
     # Options required by systemd.
     ./scripts/config \
         --enable CGROUPS \
