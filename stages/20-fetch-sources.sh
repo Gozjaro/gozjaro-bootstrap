@@ -125,19 +125,23 @@ echo "$source_urls" | grep -vE '^\s*$' | while IFS= read -r url; do
     fn="${url##*/}"
 
     logline "[$idx/$total] fetching $fn"
-    ok=0
-    for try in 1 2 3; do
-        rm -f "$fn"
-        if wget --timeout=30 --tries=1 \
-                --progress=bar:force:noscroll \
-                "$url"; then
-            ok=1
-            logline "[$idx/$total] ok $fn"
-            break
-        fi
-        logline "[$idx/$total] retry $try $fn"
-        sleep 2
-    done
+    if [ -f "$fn" ]; then
+        logline "[$idx/$total] $fn already exists, skipping download"
+        ok=1
+    else
+        ok=0
+        for try in 1 2 3; do
+            if wget --timeout=30 --tries=1 \
+                    --progress=bar:force:noscroll \
+                    "$url"; then
+                ok=1
+                logline "[$idx/$total] ok $fn"
+                break
+            fi
+            logline "[$idx/$total] retry $try $fn"
+            sleep 2
+        done
+    fi
     if [ "$ok" = "0" ]; then
         logline "[$idx/$total] FAILED $fn"
         echo "$url" >> "$fail_list"
