@@ -35,10 +35,8 @@ logline() { printf '%s\n' "$*" | tee -a "$summary_log"; }
 # ---------------------------------------------------------------------------
 
 get_source_urls() {
-    """
-    Returns a list of source URLs to download.
-    Priority: YAML manifests > legacy packages.txt
-    """
+    # Returns a list of source URLs to download.
+    # Priority: YAML manifests > legacy packages.txt.
     local urls=()
     local has_yaml=0
 
