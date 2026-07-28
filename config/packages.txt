@@ -1,5 +1,5 @@
-https://mirrors.tuna.tsinghua.edu.cn/gnu/acl/acl-2.3.2.tar.xz
-https://mirrors.tuna.tsinghua.edu.cn/gnu/attr/attr-2.5.2.tar.gz
+https://download.savannah.nongnu.org/releases/acl/acl-2.3.2.tar.xz
+https://download.savannah.nongnu.org/releases/attr/attr-2.5.2.tar.gz
 https://mirrors.tuna.tsinghua.edu.cn/gnu/autoconf/autoconf-2.72.tar.xz
 https://mirrors.tuna.tsinghua.edu.cn/gnu/automake/automake-1.17.tar.xz
 https://mirrors.tuna.tsinghua.edu.cn/gnu/bash/bash-5.2.37.tar.gz
