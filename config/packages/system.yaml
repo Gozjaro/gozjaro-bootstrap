@@ -192,7 +192,7 @@ packages:
     version: "1.25.0"
     category: system
     source:
-      url: https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz
+      url: https://mirrors.tuna.tsinghua.edu.cn/gnu/wget/wget-1.25.0.tar.gz
       checksum:
         type: sha256
         value: ""
