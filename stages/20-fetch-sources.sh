@@ -96,7 +96,7 @@ download_patches_for_package() {
         logline "  patch: $patch_fn"
         if [ ! -f "$dest_path" ]; then
             wget --timeout=30 --tries=1 --progress=bar:force:noscroll \
-                 -O "$dest_path" "$patch_url" 2>/dev/null || \
+                 -U "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" -O "$dest_path" "$patch_url" 2>/dev/null || \
                 logline "  WARN: Failed to download patch $patch_fn"
         fi
     done <<< "$patch_urls"
@@ -133,6 +133,7 @@ echo "$source_urls" | grep -vE '^\s*$' | while IFS= read -r url; do
         for try in 1 2 3; do
             if wget --timeout=30 --tries=1 \
                     --progress=bar:force:noscroll \
+                    -U "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
                     "$url"; then
                 ok=1
                 logline "[$idx/$total] ok $fn"
@@ -223,6 +224,7 @@ verify_downloaded_checksums || true
 # Fallback: also verify against upstream LFS md5sums if available
 logline "checking upstream md5sums from $LFS_MD5_URL"
 if wget --timeout=30 --tries=3 --progress=bar:force:noscroll \
+        -U "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
         -O md5sums.upstream "$LFS_MD5_URL" 2>/dev/null; then
     grep -E "  ($(ls | tr '\n' '|' | sed 's/|$//'))\$" md5sums.upstream > md5sums.local 2>/dev/null || true
     if [ -s md5sums.local ]; then
