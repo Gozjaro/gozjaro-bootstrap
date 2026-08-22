@@ -268,28 +268,44 @@ jobs:
         run: |
           set -euo pipefail
 
-          ISO_DIR="${{ env.LFS }}"
-          shopt -s nullglob
-          isos=("$ISO_DIR"/gozjaro-*-live.iso)
-          shopt -u nullglob
+          echo "==> Publishing ISO via stage 91-release.sh"
+          # Stage 91-release.sh handles ISO discovery, tag derivation,
+          # release notes generation, and gh release creation.
+          # Requires: gh (GitHub CLI) installed and available.
+          sudo ./build.sh 91-release
 
-          if [[ ${#isos[@]} -eq 0 ]]; then
-            echo "::warning::No ISO found to publish"
-            exit 0
-          fi
+          echo "==> Release published successfully"
 
-          ISO="${isos[-1]}"
-          ISO_FILE=$(basename "$ISO")
-          echo "Publishing: $ISO_FILE"
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-          # Derive release tag
-          TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//')
+      - name: Validate build.sh stages list
+        run: |
+          set -euo pipefail
+          echo "==> Validating stage list..."
+          sudo ./build.sh --list | while read -r stage; do
+            script="stages/${stage}.sh"
+            [ -f "$script" ] || { echo "FAIL: stage $stage has no script"; exit 1; }
+            [ -r "$script" ] || { echo "FAIL: stage $stage script not readable"; exit 1; }
+          done
+          echo "All stages have matching scripts."
 
-          # Create or update release
-          gh release create "$TAG" \
-            --title "Gozjaro Linux $TAG" \
-            --generate-notes \
-            --draft \
-            "$ISO"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate build.sh status command
+        run: |
+          set -euo pipefail
+          sudo ./build.sh --status
+
+      - name: Shellcheck stage scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          check_together: yes
+        continue-on-error: true
+
+      - name: Validate workflow YAML syntax
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build-iso.yml'))"
+          echo "Workflow YAML is valid."
