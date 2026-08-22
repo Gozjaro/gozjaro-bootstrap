@@ -98,6 +98,39 @@ jobs:
           df -h "$LFS"
           echo "LFS partition ready at $LFS"
 
+      - name: Cache source downloads
+        id: cache-sources
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.LFS }}/sources
+          key: sources-${{ hashFiles('config/packages/**/*.yaml', 'config/packages/**/*.yml', 'config/packages.txt', 'config/packages/*.txt') }}
+          restore-keys: |
+            sources-
+
+      - name: Report cached sources
+        run: |
+          echo "Cache hit: ${{ steps.cache-sources.outputs.cache-hit }}"
+          if [[ -d "${{ env.LFS }}/sources" ]]; then
+            echo "Cached sources: $(ls ${{ env.LFS }}/sources/ 2>/dev/null | wc -l) files"
+          fi
+
+
+      - name: Cache source downloads
+        id: cache-sources
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.LFS }}/sources
+          key: sources-${{ hashFiles('config/packages/**/*.yaml', 'config/packages/**/*.yml', 'config/packages.txt', 'config/packages/*.txt') }}
+          restore-keys: |
+            sources-
+
+      - name: Report cached sources
+        run: |
+          echo "Cache hit: ${{ steps.cache-sources.outputs.cache-hit }}"
+          if [[ -d "${{ env.LFS }}/sources" ]]; then
+            echo "Cached sources: $(ls ${{ env.LFS }}/sources/ 2>/dev/null | wc -l) files"
+          fi
+
       - name: Host prerequisite check
         run: |
           set -euo pipefail
