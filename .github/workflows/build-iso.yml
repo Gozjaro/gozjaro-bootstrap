@@ -23,6 +23,8 @@ on:
       - 'build.sh'
       - '.github/workflows/build-iso.yml'
 
+  release:
+    types: [published]
 permissions:
   contents: write
 
