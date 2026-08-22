@@ -75,10 +75,10 @@ packages:
       - openssl
 
   - name: grub
-    version: "2.12"
+    version: "2.14"
     category: system
     source:
-      url: https://mirrors.kernel.org/gnu/grub/grub-2.12.tar.xz
+      url: https://mirrors.kernel.org/gnu/grub/https://ftpmirror.gnu.org/grub/grub-2.14.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -93,10 +93,10 @@ packages:
     dependencies: []
 
   - name: kmod
-    version: "34"
+    version: "34.2"
     category: system
     source:
-      url: https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.tar.xz
+      url: https://www.kernel.org/pub/linux/utils/kernel/kmod/https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -166,10 +166,10 @@ packages:
     dependencies: []
 
   - name: systemd
-    version: "260.2"
+    version: "261.2"
     category: system
     source:
-      url: https://github.com/systemd/systemd/archive/v260.2/systemd-260.2.tar.gz
+      url: https://github.com/systemd/systemd/archive/v260.2/https://github.com/systemd/systemd/archive/v261.2/systemd-261.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -206,10 +206,10 @@ packages:
       - openssl
 
   - name: vim
-    version: "9.1.1166"
+    version: "9.2.0954"
     category: system
     source:
-      url: https://github.com/vim/vim/archive/v9.1.1166/vim-9.1.1166.tar.gz
+      url: https://github.com/vim/vim/archive/v9.1.1166/https://github.com/vim/vim/archive/v9.2.0954/vim-9.2.0954.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -221,10 +221,10 @@ packages:
     dependencies: []
 
   - name: sysvinit
-    version: "2.62"
+    version: "3.14"
     category: system
     source:
-      url: https://mirrors.edge.kernel.org/pub/linux/utils/sysvinit/sysvinit-2.62.tar.xz
+      url: https://mirrors.edge.kernel.org/pub/linux/utils/sysvinit/https://github.com/slicer69/sysvinit/releases/download/3.14/sysvinit-3.14.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -234,10 +234,10 @@ packages:
     dependencies: []
 
   - name: sysklogd
-    version: "2.5.2"
+    version: "2.7.2"
     category: system
     source:
-      url: https://github.com/sysklogd/sysklogd/releases/download/2.5.2/sysklogd-2.5.2.tar.gz
+      url: https://github.com/sysklogd/sysklogd/releases/download/2.5.2/https://github.com/troglobit/sysklogd/releases/download/v2.7.2/sysklogd-2.7.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -249,10 +249,10 @@ packages:
     dependencies: []
 
   - name: perl
-    version: "5.40.1"
+    version: "5.44.0"
     category: system
     source:
-      url: https://www.cpan.org/src/5.40/perl-5.40.1.tar.xz
+      url: https://www.cpan.org/src/5.40/https://www.cpan.org/src/5.0/perl-5.44.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -262,10 +262,10 @@ packages:
     dependencies: []
 
   - name: python3
-    version: "3.13.2"
+    version: "3.14.7"
     category: system
     source:
-      url: https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tar.xz
+      url: https://www.python.org/ftp/python/3.13.2/https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -280,10 +280,10 @@ packages:
     dependencies: []
 
   - name: openssl
-    version: "3.5.1"
+    version: "4.0.1"
     category: system
     source:
-      url: https://github.com/openssl/openssl/releases/download/openssl-3.5.1/openssl-3.5.1.tar.gz
+      url: https://github.com/openssl/openssl/releases/download/openssl-3.5.1/https://github.com/openssl/openssl/releases/download/openssl-4.0.1/openssl-4.0.1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -315,10 +315,10 @@ packages:
       - markupsafe
 
   - name: setuptools
-    version: "83.0.0"
+    version: "84.0.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/s/setuptools/setuptools-83.0.0.tar.gz
+      url: https://files.pythonhosted.org/packages/source/s/setuptools/https://pypi.org/packages/source/s/setuptools/setuptools-84.0.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -329,10 +329,10 @@ packages:
       - python3
 
   - name: wheel
-    version: "0.47.0"
+    version: "0.48.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/w/wheel/wheel-0.47.0.tar.gz
+      url: https://files.pythonhosted.org/packages/source/w/wheel/https://pypi.org/packages/source/w/wheel/wheel-0.48.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -371,10 +371,10 @@ packages:
       - perl
 
   - name: tcl
-    version: "8.6.15"
+    version: "8.6.18"
     category: system
     source:
-      url: https://downloads.sourceforge.net/project/tcl/Tcl/8.6.15/tcl8.6.15-src.tar.gz
+      url: https://downloads.sourceforge.net/project/tcl/Tcl/8.6.15/https://downloads.sourceforge.net/tcl/tcl8.6.18-src.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -388,10 +388,10 @@ packages:
     dependencies: []
 
   - name: flit-core
-    version: "3.12.0"
+    version: "4.0.2"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/f/flit-core/flit_core-3.12.0.tar.gz
+      url: https://files.pythonhosted.org/packages/source/f/flit-core/https://pypi.org/packages/source/f/flit-core/flit_core-4.0.2.tar.gz
       checksum:
         type: sha256
         value: ""

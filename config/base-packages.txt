@@ -1,4 +1,4 @@
-# Gozjaro base system packages (LFS 12.3 equivalent).
+# Gozjaro base system packages (LFS 13.1-rc2 equivalent).
 # Used by stage 36-binary-install.sh when building in binary mode.
 # One package name per line. Lines starting with # are comments.
 

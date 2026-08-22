@@ -5,25 +5,45 @@
 patches:
   - name: bzip2-1.0.8-install_docs-1.patch
     package: bzip2
-    url: https://www.linuxfromscratch.org/patches/lfs/12.3/bzip2-1.0.8-install_docs-1.patch
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/bzip2-1.0.8-install_docs-1.patch
     strip: 0
 
-  - name: coreutils-9.6-i18n-1.patch
+  - name: coreutils-9.11-i18n-1.patch
     package: coreutils
-    url: https://www.linuxfromscratch.org/patches/lfs/12.3/coreutils-9.6-i18n-1.patch
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/coreutils-9.11-i18n-1.patch
     strip: 1
 
-  - name: expect-5.45.4-gcc14-1.patch
+  - name: expect-5.45.4-gcc15-1.patch
     package: expect
-    url: https://www.linuxfromscratch.org/patches/lfs/12.3/expect-5.45.4-gcc14-1.patch
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/expect-5.45.4-gcc15-1.patch
     strip: 0
 
-  - name: glibc-2.41-fhs-1.patch
+  - name: glibc-2.44-upstream_fixes-1.patch
     package: glibc
-    url: https://www.linuxfromscratch.org/patches/lfs/12.3/glibc-2.41-fhs-1.patch
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/glibc-2.44-upstream_fixes-1.patch
     strip: 1
 
-  - name: kbd-2.7.1-backspace-1.patch
+  - name: glibc-fhs-1.patch
+    package: glibc
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/glibc-fhs-1.patch
+    strip: 1
+
+  - name: kbd-2.10.0-backspace-1.patch
     package: kbd
-    url: https://www.linuxfromscratch.org/patches/lfs/12.3/kbd-2.7.1-backspace-1.patch
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/kbd-2.10.0-backspace-1.patch
     strip: 0
+
+  - name: Python-3.14.7-openssl_4-1.patch
+    package: python3
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/Python-3.14.7-openssl_4-1.patch
+    strip: 1
+
+  - name: sysvinit-3.14-consolidated-1.patch
+    package: sysvinit
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/sysvinit-3.14-consolidated-1.patch
+    strip: 1
+
+  - name: tar-1.35-acl_fix-1.patch
+    package: tar
+    url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/tar-1.35-acl_fix-1.patch
+    strip: 1
