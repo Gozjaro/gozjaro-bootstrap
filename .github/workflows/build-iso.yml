@@ -275,7 +275,6 @@ jobs:
           sudo ./build.sh 91-release
 
           echo "==> Release published successfully"
-
   smoke-test:
     runs-on: ubuntu-latest
     steps:
@@ -287,9 +286,9 @@ jobs:
           set -euo pipefail
           echo "==> Validating stage list..."
           sudo ./build.sh --list | while read -r stage; do
-            script="stages/${stage}.sh"
-            [ -f "$script" ] || { echo "FAIL: stage $stage has no script"; exit 1; }
-            [ -r "$script" ] || { echo "FAIL: stage $stage script not readable"; exit 1; }
+            script="stages/\.sh"
+            [ -f "" ] || { echo "FAIL: stage \ has no script"; exit 1; }
+            [ -r "" ] || { echo "FAIL: stage \ script not readable"; exit 1; }
           done
           echo "All stages have matching scripts."
 
@@ -309,3 +308,4 @@ jobs:
         run: |
           python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build-iso.yml'))"
           echo "Workflow YAML is valid."
+
