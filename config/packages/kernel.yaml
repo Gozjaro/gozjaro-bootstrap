@@ -4,25 +4,13 @@
 
 packages:
   - name: linux
-    version: "7.1.3"
+    version: "7.1.8"
     category: kernel
     source:
-      url: https://mirrors.ustc.edu.cn/kernel.org/linux/kernel/v7.x/linux-7.1.tar.xz
+      url: https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.1.8.tar.xz
       checksum:
         type: sha256
         value: ""
     build:
       system: custom
-    dependencies: []
-
-  - name: linux-firmware
-    version: "20250306"
-    category: kernel
-    source:
-      url: https://mirrors.ustc.edu.cn/kernel.org/linux/kernel/firmware/linux-firmware-20260622.tar.xz
-      checksum:
-        type: sha256
-        value: ""
-    build:
-      system: make
     dependencies: []
