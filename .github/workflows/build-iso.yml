@@ -293,3 +293,37 @@ jobs:
             "$ISO"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate build.sh stages list
+        run: |
+          set -euo pipefail
+          echo "==> Validating stage list..."
+          sudo ./build.sh --list | while read -r stage; do
+            script="stages/${stage}.sh"
+            [ -f "$script" ] || { echo "FAIL: stage $stage has no script"; exit 1; }
+            [ -r "$script" ] || { echo "FAIL: stage $stage script not readable"; exit 1; }
+          done
+          echo "All stages have matching scripts."
+
+      - name: Validate build.sh status command
+        run: |
+          set -euo pipefail
+          sudo ./build.sh --status
+
+      - name: Shellcheck stage scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          check_together: yes
+        continue-on-error: true
+
+      - name: Validate workflow YAML syntax
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('.github/workflows/build-iso.yml'))"
+          echo "Workflow YAML is valid."
