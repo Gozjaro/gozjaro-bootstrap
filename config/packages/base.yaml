@@ -1,12 +1,12 @@
-# Gozjaro Base Packages (LFS 12.3 equivalent)
+# Gozjaro Base Packages (LFS 13.1-rc2 equivalent)
 # Core packages required for a minimal working system.
 
 packages:
   - name: acl
-    version: "2.3.2"
+    version: "2.4.0"
     category: base
     source:
-      url: https://download.savannah.nongnu.org/releases/acl/acl-2.3.2.tar.xz
+      url: https://download.savannah.gnu.org/releases/acl/acl-2.4.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -20,10 +20,10 @@ packages:
       - attr
 
   - name: attr
-    version: "2.5.2"
+    version: "2.6.0"
     category: base
     source:
-      url: https://download.savannah.nongnu.org/releases/attr/attr-2.5.2.tar.gz
+      url: https://download.savannah.gnu.org/releases/attr/attr-2.6.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -36,10 +36,10 @@ packages:
     dependencies: []
 
   - name: autoconf
-    version: "2.72"
+    version: "2.78"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/autoconf/autoconf-2.72.tar.xz
+      url: https://ftpmirror.gnu.org/autoconf/autoconf-2.73.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -51,10 +51,10 @@ packages:
     dependencies: []
 
   - name: automake
-    version: "1.17"
+    version: "1.18.1"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/automake/automake-1.17.tar.xz
+      url: https://ftpmirror.gnu.org/automake/automake-1.18.1.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -68,10 +68,10 @@ packages:
       - perl
 
   - name: bash
-    version: "5.2.37"
+    version: "5.3"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/bash/bash-5.2.37.tar.gz
+      url: https://ftpmirror.gnu.org/bash/bash-5.3.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -81,7 +81,7 @@ packages:
         - --prefix=/usr
         - --without-bash-malloc
         - --with-installed-readline
-        - --docdir=/usr/share/doc/bash-5.2.37
+        - --docdir=/usr/share/doc/bash-5.3
       install_check: bash --version
     dependencies:
       - readline
@@ -107,10 +107,10 @@ packages:
     dependencies: []
 
   - name: binutils
-    version: "2.44"
+    version: "2.47"
     category: base
     source:
-      url: https://sourceware.org/pub/binutils/releases/binutils-2.44.tar.xz
+      url: https://sourceware.org/pub/binutils/releases/binutils-2.47.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -134,7 +134,7 @@ packages:
     version: "3.8.2"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/bison/bison-3.8.2.tar.xz
+      url: https://ftpmirror.gnu.org/bison/bison-3.8.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -156,40 +156,25 @@ packages:
         value: ""
     patches:
       - name: bzip2-1.0.8-install_docs-1.patch
-        url: https://www.linuxfromscratch.org/patches/lfs/12.3/bzip2-1.0.8-install_docs-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/bzip2-1.0.8-install_docs-1.patch
         strip: 0
     build:
       system: make
       install_check: bzip2 --version
     dependencies: []
 
-  - name: check
-    version: "0.15.2"
-    category: base
-    source:
-      url: https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz
-      checksum:
-        type: sha256
-        value: ""
-    build:
-      system: autotools
-      configure:
-        - --prefix=/usr
-        - --disable-static
-      install_check: chk--version
-    dependencies: []
 
   - name: coreutils
-    version: "9.6"
+    version: "9.11"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/coreutils/coreutils-9.6.tar.xz
+      url: https://ftpmirror.gnu.org/coreutils/coreutils-9.11.tar.xz
       checksum:
         type: sha256
         value: ""
     patches:
       - name: coreutils-9.6-i18n-1.patch
-        url: https://www.linuxfromscratch.org/patches/lfs/12.3/coreutils-9.6-i18n-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/coreutils-9.11-i18n-1.patch
         strip: 1
     build:
       system: autotools
@@ -203,7 +188,7 @@ packages:
     version: "1.6.3"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/dejagnu/dejagnu-1.6.3.tar.gz
+      url: https://ftpmirror.gnu.org/dejagnu/dejagnu-1.6.3.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -215,10 +200,10 @@ packages:
     dependencies: []
 
   - name: diffutils
-    version: "3.11"
+    version: "3.12"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/diffutils/diffutils-3.11.tar.xz
+      url: https://ftpmirror.gnu.org/diffutils/diffutils-3.12.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -230,10 +215,10 @@ packages:
     dependencies: []
 
   - name: e2fsprogs
-    version: "1.47.2"
+    version: "1.47.4"
     category: base
     source:
-      url: https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.gz
+      url: https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v1.47.4/e2fsprogs-1.47.4.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -251,10 +236,10 @@ packages:
     dependencies: []
 
   - name: elfutils
-    version: "0.192"
+    version: "0.195"
     category: base
     source:
-      url: https://sourceware.org/ftp/elfutils/0.192/elfutils-0.192.tar.bz2
+      url: https://sourceware.org/ftp/elfutils/0.195/elfutils-0.195.tar.bz2
       checksum:
         type: sha256
         value: ""
@@ -268,10 +253,10 @@ packages:
     dependencies: []
 
   - name: expat
-    version: "2.7.0"
+    version: "2.8.3"
     category: base
     source:
-      url: https://github.com/libexpat/libexpat/releases/download/R_2_7_0/expat-2.7.0.tar.xz
+      url: https://github.com/libexpat/libexpat/releases/download/R_2_8_3/expat-2.8.3.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -288,13 +273,13 @@ packages:
     version: "5.45.4"
     category: base
     source:
-      url: https://sourceforge.net/projects/expect/files/Expect/5.45.4/expect5.45.4.tar.gz
+      url: https://prdownloads.sourceforge.net/expect/expect5.45.4.tar.gz
       checksum:
         type: sha256
         value: ""
     patches:
       - name: expect-5.45.4-gcc14-1.patch
-        url: https://www.linuxfromscratch.org/patches/lfs/12.3/expect-5.45.4-gcc14-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/expect-5.45.4-gcc15-1.patch
         strip: 0
     build:
       system: autotools
@@ -311,10 +296,10 @@ packages:
       - python3
 
   - name: file
-    version: "5.46"
+    version: "5.48"
     category: base
     source:
-      url: https://astron.com/pub/file/file-5.46.tar.gz
+      url: https://astron.com/pub/file/file-5.48.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -326,10 +311,10 @@ packages:
     dependencies: []
 
   - name: findutils
-    version: "4.10.0"
+    version: "4.11.0"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/findutils/findutils-4.10.0.tar.xz
+      url: https://ftpmirror.gnu.org/findutils/findutils-4.11.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -359,10 +344,10 @@ packages:
     dependencies: []
 
   - name: flit-core
-    version: "3.11.0"
+    version: "4.0.2"
     category: base
     source:
-      url: https://pypi.org/packages/source/f/flit-core/flit_core-3.11.0.tar.gz
+      url: https://pypi.org/packages/source/f/flit-core/flit_core-4.0.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -373,10 +358,10 @@ packages:
       - python3
 
   - name: gawk
-    version: "5.3.1"
+    version: "5.4.1"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gawk/gawk-5.3.1.tar.xz
+      url: https://ftpmirror.gnu.org/gawk/gawk-5.4.1.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -388,10 +373,10 @@ packages:
     dependencies: []
 
   - name: gcc
-    version: "14.2.0"
+    version: "16.2.0"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz
+      url: https://ftpmirror.gnu.org/gcc/gcc-16.2.0/gcc-16.2.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -415,10 +400,10 @@ packages:
       - binutils
 
   - name: gdbm
-    version: "1.24"
+    version: "1.26"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gdbm/gdbm-1.24.tar.gz
+      url: https://ftpmirror.gnu.org/gdbm/gdbm-1.26.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -432,10 +417,10 @@ packages:
     dependencies: []
 
   - name: gettext
-    version: "0.24"
+    version: "1.0"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gettext/gettext-0.24.tar.xz
+      url: https://ftpmirror.gnu.org/gettext/gettext-1.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -449,16 +434,16 @@ packages:
     dependencies: []
 
   - name: glibc
-    version: "2.41"
+    version: "2.47"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/glibc/glibc-2.41.tar.xz
+      url: https://ftpmirror.gnu.org/glibc/glibc-2.44.tar.xz
       checksum:
         type: sha256
         value: ""
     patches:
       - name: glibc-2.41-fhs-1.patch
-        url: https://www.linuxfromscratch.org/patches/lfs/12.3/glibc-2.41-fhs-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/glibc-fhs-1.patch
         strip: 1
     build:
       system: autotools
@@ -476,7 +461,7 @@ packages:
     version: "6.3.0"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gmp/gmp-6.3.0.tar.xz
+      url: https://ftpmirror.gnu.org/gmp/gmp-6.3.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -491,10 +476,10 @@ packages:
     dependencies: []
 
   - name: gperf
-    version: "3.1"
+    version: "3.3"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gperf/gperf-3.1.tar.gz
+      url: https://ftpmirror.gnu.org/gperf/gperf-3.3.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -507,10 +492,10 @@ packages:
     dependencies: []
 
   - name: grep
-    version: "3.11"
+    version: "3.12"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/grep/grep-3.11.tar.xz
+      url: https://ftpmirror.gnu.org/grep/grep-3.12.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -522,10 +507,10 @@ packages:
     dependencies: []
 
   - name: groff
-    version: "1.23.0"
+    version: "1.24.1"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/groff/groff-1.23.0.tar.gz
+      url: https://ftpmirror.gnu.org/groff/groff-1.24.1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -537,10 +522,10 @@ packages:
     dependencies: []
 
   - name: gzip
-    version: "1.13"
+    version: "1.14"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/gzip/gzip-1.13.tar.xz
+      url: https://ftpmirror.gnu.org/gzip/gzip-1.14.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -552,10 +537,10 @@ packages:
     dependencies: []
 
   - name: iana-etc
-    version: "20250123"
+    version: "20260805"
     category: base
     source:
-      url: https://github.com/Mic92/iana-etc/releases/download/20250123/iana-etc-20250123.tar.gz
+      url: https://github.com/Mic92/iana-etc/releases/download/20260805/iana-etc-20260805.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -565,10 +550,10 @@ packages:
     dependencies: []
 
   - name: inetutils
-    version: "2.6"
+    version: "2.8"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/inetutils/inetutils-2.6.tar.xz
+      url: https://ftpmirror.gnu.org/inetutils/inetutils-2.8.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -588,46 +573,18 @@ packages:
       install_check: ifconfig --version
     dependencies: []
 
-  - name: intltool
-    version: "0.51.0"
-    category: base
-    source:
-      url: https://launchpad.net/intltool/trunk/0.51.0/+download/intltool-0.51.0.tar.gz
-      checksum:
-        type: sha256
-        value: ""
-    build:
-      system: autotools
-      configure:
-        - --prefix=/usr
-      install_check: intltool-update --version
-    dependencies:
-      - perl
-
-  - name: iproute2
-    version: "6.13.0"
-    category: base
-    source:
-      url: https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.13.0.tar.xz
-      checksum:
-        type: sha256
-        value: ""
-    build:
-      system: make
-      install_check: ip --version
-    dependencies: []
 
   - name: kbd
-    version: "2.7.1"
+    version: "2.10.0"
     category: base
     source:
-      url: https://www.kernel.org/pub/linux/utils/kbd/kbd-2.7.1.tar.xz
+      url: https://www.kernel.org/pub/linux/utils/kbd/kbd-2.10.0.tar.xz
       checksum:
         type: sha256
         value: ""
     patches:
       - name: kbd-2.7.1-backspace-1.patch
-        url: https://www.linuxfromscratch.org/patches/lfs/12.3/kbd-2.7.1-backspace-1.patch
+        url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/kbd-2.10.0-backspace-1.patch
         strip: 0
     build:
       system: autotools
@@ -638,10 +595,10 @@ packages:
     dependencies: []
 
   - name: less
-    version: "668"
+    version: "704"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/less/less-668.tar.gz
+      url: https://www.greenwoodsoftware.com/less/less-704.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -654,10 +611,10 @@ packages:
     dependencies: []
 
   - name: libcap
-    version: "2.73"
+    version: "2.78"
     category: base
     source:
-      url: https://mirrors.edge.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.73.tar.xz
+      url: https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.78.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -667,10 +624,10 @@ packages:
     dependencies: []
 
   - name: libffi
-    version: "3.4.7"
+    version: "3.8.0"
     category: base
     source:
-      url: https://github.com/libffi/libffi/releases/download/v3.4.7/libffi-3.4.7.tar.gz
+      url: https://github.com/libffi/libffi/releases/download/v3.8.0/libffi-3.8.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -699,10 +656,10 @@ packages:
     dependencies: []
 
   - name: libtool
-    version: "2.5.4"
+    version: "2.6.2"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/libtool/libtool-2.5.4.tar.xz
+      url: https://ftpmirror.gnu.org/libtool/libtool-2.6.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -714,10 +671,10 @@ packages:
     dependencies: []
 
   - name: libxcrypt
-    version: "4.4.38"
+    version: "4.5.2"
     category: base
     source:
-      url: https://github.com/besser82/libxcrypt/releases/download/v4.4.38/libxcrypt-4.4.38.tar.xz
+      url: https://github.com/besser82/libxcrypt/releases/download/v4.5.2/libxcrypt-4.5.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -733,10 +690,10 @@ packages:
     dependencies: []
 
   - name: m4
-    version: "1.4.19"
+    version: "1.4.21"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/m4/m4-1.4.19.tar.xz
+      url: https://ftpmirror.gnu.org/m4/m4-1.4.21.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -751,7 +708,7 @@ packages:
     version: "4.4.1"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/make/make-4.4.1.tar.gz
+      url: https://ftpmirror.gnu.org/make/make-4.4.1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -763,10 +720,10 @@ packages:
     dependencies: []
 
   - name: man-db
-    version: "2.13.0"
+    version: "2.13.1"
     category: base
     source:
-      url: https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
+      url: https://download.savannah.gnu.org/releases/man-db/man-db-2.13.1.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -779,10 +736,10 @@ packages:
       - libpipeline
 
   - name: meson
-    version: "1.6.1"
+    version: "1.12.0"
     category: base
     source:
-      url: https://github.com/mesonbuild/meson/releases/download/1.6.1/meson-1.6.1.tar.gz
+      url: https://github.com/mesonbuild/meson/releases/download/1.12.0/meson-1.12.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -793,10 +750,10 @@ packages:
       - python3
 
   - name: ninja
-    version: "1.12.1"
+    version: "1.13.2"
     category: base
     source:
-      url: https://github.com/ninja-build/ninja/archive/v1.12.1/ninja-1.12.1.tar.gz
+      url: https://github.com/ninja-build/ninja/archive/v1.13.2/ninja-1.13.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -806,10 +763,10 @@ packages:
     dependencies: []
 
   - name: ncurses
-    version: "6.5"
+    version: "6.6"
     category: base
     source:
-      url: https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz
+      url: https://invisible-mirror.net/archives/ncurses/ncurses-6.6.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -828,10 +785,10 @@ packages:
     dependencies: []
 
   - name: patch
-    version: "2.7.6"
+    version: "2.8"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/patch/patch-2.7.6.tar.xz
+      url: https://ftpmirror.gnu.org/patch/patch-2.8.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -843,10 +800,10 @@ packages:
     dependencies: []
 
   - name: procps-ng
-    version: "4.0.5"
+    version: "4.0.7"
     category: base
     source:
-      url: https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.5.tar.xz
+      url: https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.7.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -861,10 +818,10 @@ packages:
     dependencies: []
 
   - name: sed
-    version: "4.9"
+    version: "4.10"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/sed/sed-4.9.tar.xz
+      url: https://ftpmirror.gnu.org/sed/sed-4.10.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -876,10 +833,10 @@ packages:
     dependencies: []
 
   - name: shadow
-    version: "4.17.3"
+    version: "4.20.2"
     category: base
     source:
-      url: https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
+      url: https://github.com/shadow-maint/shadow/releases/download/4.20.2/shadow-4.20.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -899,7 +856,7 @@ packages:
     version: "1.35"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/tar/tar-1.35.tar.xz
+      url: https://ftpmirror.gnu.org/tar/tar-1.35.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -911,10 +868,10 @@ packages:
     dependencies: []
 
   - name: texinfo
-    version: "7.2"
+    version: "7.3"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/gnu/texinfo/texinfo-7.2.tar.xz
+      url: https://ftpmirror.gnu.org/texinfo/texinfo-7.3.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -926,10 +883,10 @@ packages:
     dependencies: []
 
   - name: tzdata
-    version: "2025a"
+    version: "2026c"
     category: base
     source:
-      url: https://www.iana.org/time-zones/repository/releases/tzdata2025a.tar.gz
+      url: https://www.iana.org/time-zones/repository/releases/tzdata2026c.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -939,10 +896,10 @@ packages:
     dependencies: []
 
   - name: util-linux
-    version: "2.40.4"
+    version: "2.42.2"
     category: base
     source:
-      url: https://mirrors.ustc.edu.cn/kernel.org/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
+      url: https://www.kernel.org/pub/linux/utils/util-linux/v2.42/util-linux-2.42.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -969,10 +926,10 @@ packages:
     dependencies: []
 
   - name: xz
-    version: "5.6.4"
+    version: "5.8.3"
     category: base
     source:
-      url: https://github.com/tukaani-project/xz/releases/download/v5.6.4/xz-5.6.4.tar.xz
+      url: https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -981,15 +938,15 @@ packages:
       configure:
         - --prefix=/usr
         - --disable-static
-        - --docdir=/usr/share/doc/xz-5.6.4
+        - --docdir=/usr/share/doc/xz-5.8.3
       install_check: xz --version
     dependencies: []
 
   - name: zlib
-    version: "1.3.1"
+    version: "1.3.2"
     category: base
     source:
-      url: https://zlib.net/fossils/zlib-1.3.1.tar.gz
+      url: https://zlib.net/fossils/zlib-1.3.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -997,5 +954,114 @@ packages:
       system: autotools
       configure:
         - --prefix=/usr
-      install_check: zlib --version
+      install_check: gzip --version
+    dependencies: []
+
+  - name: zstd
+    version: "1.5.7"
+    category: base
+    source:
+      url: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: make
+      install_check: zstd --version
+    dependencies: []
+
+  - name: psmisc
+    version: "23.7"
+    category: base
+    source:
+      url: https://downloads.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: fuser --version
+    dependencies: []
+
+  - name: readline
+    version: "8.3"
+    category: base
+    source:
+      url: https://ftpmirror.gnu.org/readline/readline-8.3.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --with-curses
+        - --docdir=/usr/share/doc/readline-8.3
+      install_check: bind -q version
+    dependencies:
+      - ncurses
+
+  - name: pkgconf
+    version: "3.0.5"
+    category: base
+    source:
+      url: https://distfiles.ariadne.space/pkgconf/pkgconf-3.0.5.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+        - --disable-static
+        - --docdir=/usr/share/doc/pkgconf-3.0.5
+      install_check: pkgconf --version
+    dependencies: []
+
+  - name: parted
+    version: "3.6"
+    category: base
+    source:
+      url: https://ftp.gnu.org/gnu/parted/parted-3.6.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: parted --version
+    dependencies: []
+
+  - name: dosfstools
+    version: "4.2"
+    category: base
+    source:
+      url: https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: autotools
+      configure:
+        - --prefix=/usr
+      install_check: fsck.vfat --version
+    dependencies: []
+
+  - name: libarchive
+    version: "3.7.7"
+    category: base
+    source:
+      url: https://github.com/libarchive/libarchive/releases/download/v3.7.7/libarchive-3.7.7.tar.xz
+      checksum:
+        type: sha256
+        value: ""
+    build:
+      system: cmake
+      configure:
+        - -DCMAKE_INSTALL_PREFIX=/usr
+      install_check: bsdtar --version
     dependencies: []
