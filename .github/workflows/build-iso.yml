@@ -23,6 +23,12 @@ on:
       - 'build.sh'
       - '.github/workflows/build-iso.yml'
 
+  release:
+    types: [published]
+
+  schedule:
+    # Daily at 03:00 UTC — catches breakage early, before most devs start working.
+    - cron: '0 3 * * *'
 permissions:
   contents: write
 
@@ -114,6 +120,14 @@ jobs:
             echo "Cached sources: $(ls ${{ env.LFS }}/sources/ 2>/dev/null | wc -l) files"
           fi
 
+      - name: Cache source downloads
+        id: cache-sources
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.LFS }}/sources
+          key: sources-${{ hashFiles('config/packages/**/*.yaml', 'config/packages/**/*.yml', 'config/packages.txt', 'config/packages/*.txt') }}
+          restore-keys: |
+            sources-
 
       - name: Report cached sources
         run: |
@@ -292,28 +306,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          ISO_DIR="${{ env.LFS }}"
-          shopt -s nullglob
-          isos=("$ISO_DIR"/gozjaro-*-live.iso)
-          shopt -u nullglob
+          echo "==> Publishing ISO via stage 91-release.sh"
+          # Stage 91-release.sh handles ISO discovery, tag derivation,
+          # release notes generation, and gh release creation.
+          # Requires: gh (GitHub CLI) installed and available.
+          sudo ./build.sh 91-release
 
-          if [[ ${#isos[@]} -eq 0 ]]; then
-            echo "::warning::No ISO found to publish"
-            exit 0
-          fi
-
-          ISO="${isos[-1]}"
-          ISO_FILE=$(basename "$ISO")
-          echo "Publishing: $ISO_FILE"
-
-          # Derive release tag
-          TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//')
-
-          # Create or update release
-          gh release create "$TAG" \
-            --title "Gozjaro Linux $TAG" \
-            --generate-notes \
-            --draft \
-            "$ISO"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "==> Release published successfully"
