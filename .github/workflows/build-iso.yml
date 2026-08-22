@@ -115,15 +115,6 @@ jobs:
           fi
 
 
-      - name: Cache source downloads
-        id: cache-sources
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.LFS }}/sources
-          key: sources-${{ hashFiles('config/packages/**/*.yaml', 'config/packages/**/*.yml', 'config/packages.txt', 'config/packages/*.txt') }}
-          restore-keys: |
-            sources-
-
       - name: Report cached sources
         run: |
           echo "Cache hit: ${{ steps.cache-sources.outputs.cache-hit }}"
