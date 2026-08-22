@@ -23,6 +23,9 @@ on:
       - 'build.sh'
       - '.github/workflows/build-iso.yml'
 
+  schedule:
+    # Daily at 03:00 UTC — catches breakage early, before most devs start working.
+    - cron: '0 3 * * *'
 permissions:
   contents: write
 
