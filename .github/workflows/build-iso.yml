@@ -268,28 +268,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          ISO_DIR="${{ env.LFS }}"
-          shopt -s nullglob
-          isos=("$ISO_DIR"/gozjaro-*-live.iso)
-          shopt -u nullglob
+          echo "==> Publishing ISO via stage 91-release.sh"
+          # Stage 91-release.sh handles ISO discovery, tag derivation,
+          # release notes generation, and gh release creation.
+          # Requires: gh (GitHub CLI) installed and available.
+          sudo ./build.sh 91-release
 
-          if [[ ${#isos[@]} -eq 0 ]]; then
-            echo "::warning::No ISO found to publish"
-            exit 0
-          fi
-
-          ISO="${isos[-1]}"
-          ISO_FILE=$(basename "$ISO")
-          echo "Publishing: $ISO_FILE"
-
-          # Derive release tag
-          TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//')
-
-          # Create or update release
-          gh release create "$TAG" \
-            --title "Gozjaro Linux $TAG" \
-            --generate-notes \
-            --draft \
-            "$ISO"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "==> Release published successfully"
