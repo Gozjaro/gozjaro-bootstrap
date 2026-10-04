@@ -111,6 +111,32 @@ if [ -z "$source_urls" ]; then
     die "No source URLs found. Check config/packages/ or config/packages.txt"
 fi
 
+remove_invalid_cached_sources() {
+    for mfile in "${MANIFEST_DIR}"/*.yaml "${MANIFEST_DIR}"/*.yml; do
+        [ -f "$mfile" ] || continue
+
+        local pkg_names
+        pkg_names=$(_manifest_extract_names_bash "$mfile")
+        for name in $pkg_names; do
+            local checksum_value source_filename cached_file
+            checksum_value=$(manifest_get_field "$name" "checksum_value" 2>/dev/null)
+            [ -n "$checksum_value" ] || continue
+
+            source_filename=$(manifest_get_filename "$name" 2>/dev/null || true)
+            [ -n "$source_filename" ] || continue
+            cached_file="${SOURCES_DIR}/$source_filename"
+            [ -f "$cached_file" ] || continue
+
+            if ! manifest_verify_checksum "$cached_file" "$name" 2>/dev/null; then
+                warn "discarding cached source with invalid checksum: $source_filename"
+                rm -f -- "$cached_file" || die "cannot remove invalid source: $cached_file"
+            fi
+        done
+    done
+}
+
+remove_invalid_cached_sources
+
 # Count total URLs
 total=$(echo "$source_urls" | grep -cve '^\s*$')
 idx=0
@@ -166,10 +192,6 @@ fi
 # ---------------------------------------------------------------------------
 
 verify_downloaded_checksums() {
-    """
-    Verify checksums for all downloaded source files using manifest data.
-    Falls back to upstream md5sums if no manifest checksums are configured.
-    """
     local verified=0
     local skipped=0
     local errors=0
@@ -226,7 +248,7 @@ verify_downloaded_checksums() {
 }
 
 # Run manifest-based checksum verification
-verify_downloaded_checksums || true
+verify_downloaded_checksums || die "one or more source checksum verifications failed"
 
 # Fallback: also verify against upstream LFS md5sums if available
 logline "checking upstream md5sums from $LFS_MD5_URL"

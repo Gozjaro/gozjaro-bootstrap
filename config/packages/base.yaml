@@ -113,7 +113,7 @@ packages:
       url: https://sourceware.org/pub/binutils/releases/binutils-2.47.tar.xz
       checksum:
         type: sha256
-        value: ""
+        value: ce42ea86f13688adadca942b375224775b98265c3a6f4a04b0ea898a06c65efb
     build:
       system: autotools
       configure:
