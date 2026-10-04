@@ -273,7 +273,7 @@ packages:
     version: "5.45.4"
     category: base
     source:
-      url: https://netix.dl.sourceforge.net/project/expect/Expect/5.45.4/expect5.45.4.tar.gz
+      url: https://downloads.sourceforge.net/project/expect/Expect/5.45.4/expect5.45.4.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -803,7 +803,7 @@ packages:
     version: "4.0.7"
     category: base
     source:
-      url: https://netix.dl.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.7.tar.xz
+      url: https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.7.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -974,7 +974,7 @@ packages:
     version: "23.7"
     category: base
     source:
-      url: https://netix.dl.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
+      url: https://downloads.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
       checksum:
         type: sha256
         value: ""
