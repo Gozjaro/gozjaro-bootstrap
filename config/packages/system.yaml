@@ -38,7 +38,7 @@ packages:
     version: "3.2.14"
     category: system
     source:
-      url: https://github.com/torvalds/eudev/releases/download/v3.2.14/eudev-3.2.14.tar.gz
+      url: https://github.com/eudev-project/eudev/releases/download/v3.2.14/eudev-3.2.14.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -59,7 +59,7 @@ packages:
     version: "2.49.1"
     category: system
     source:
-      url: https://github.com/git/git/archive/v2.49.1/git-2.49.1.tar.xz
+      url: https://www.kernel.org/pub/software/scm/git/git-2.49.1.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -78,7 +78,7 @@ packages:
     version: "2.14"
     category: system
     source:
-      url: https://mirrors.kernel.org/gnu/grub/https://ftpmirror.gnu.org/grub/grub-2.14.tar.xz
+      url: https://ftpmirror.gnu.org/grub/grub-2.14.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -96,7 +96,7 @@ packages:
     version: "34.2"
     category: system
     source:
-      url: https://www.kernel.org/pub/linux/utils/kernel/kmod/https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.2.tar.xz
+      url: https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-34.2.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -169,7 +169,7 @@ packages:
     version: "261.2"
     category: system
     source:
-      url: https://github.com/systemd/systemd/archive/v260.2/https://github.com/systemd/systemd/archive/v261.2/systemd-261.2.tar.gz
+      url: https://github.com/systemd/systemd/archive/refs/tags/v261.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -209,7 +209,7 @@ packages:
     version: "9.2.0954"
     category: system
     source:
-      url: https://github.com/vim/vim/archive/v9.1.1166/https://github.com/vim/vim/archive/v9.2.0954/vim-9.2.0954.tar.gz
+      url: https://github.com/vim/vim/archive/refs/tags/v9.2.0954.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -224,7 +224,7 @@ packages:
     version: "3.14"
     category: system
     source:
-      url: https://mirrors.edge.kernel.org/pub/linux/utils/sysvinit/https://github.com/slicer69/sysvinit/releases/download/3.14/sysvinit-3.14.tar.xz
+      url: https://github.com/slicer69/sysvinit/releases/download/3.14/sysvinit-3.14.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -237,7 +237,7 @@ packages:
     version: "2.7.2"
     category: system
     source:
-      url: https://github.com/sysklogd/sysklogd/releases/download/2.5.2/https://github.com/troglobit/sysklogd/releases/download/v2.7.2/sysklogd-2.7.2.tar.gz
+      url: https://github.com/troglobit/sysklogd/releases/download/v2.7.2/sysklogd-2.7.2.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -252,7 +252,7 @@ packages:
     version: "5.44.0"
     category: system
     source:
-      url: https://www.cpan.org/src/5.40/https://www.cpan.org/src/5.0/perl-5.44.0.tar.xz
+      url: https://www.cpan.org/src/5.0/perl-5.44.0.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -265,7 +265,7 @@ packages:
     version: "3.14.7"
     category: system
     source:
-      url: https://www.python.org/ftp/python/3.13.2/https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz
+      url: https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz
       checksum:
         type: sha256
         value: ""
@@ -283,7 +283,7 @@ packages:
     version: "4.0.1"
     category: system
     source:
-      url: https://github.com/openssl/openssl/releases/download/openssl-3.5.1/https://github.com/openssl/openssl/releases/download/openssl-4.0.1/openssl-4.0.1.tar.gz
+      url: https://github.com/openssl/openssl/releases/download/openssl-4.0.1/openssl-4.0.1.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -318,7 +318,7 @@ packages:
     version: "84.0.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/s/setuptools/https://pypi.org/packages/source/s/setuptools/setuptools-84.0.0.tar.gz
+      url: https://pypi.org/packages/source/s/setuptools/setuptools-84.0.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -332,7 +332,7 @@ packages:
     version: "0.48.0"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/w/wheel/https://pypi.org/packages/source/w/wheel/wheel-0.48.0.tar.gz
+      url: https://pypi.org/packages/source/w/wheel/wheel-0.48.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -360,7 +360,7 @@ packages:
     version: "2.47"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/x/XML-Parser/XML-Parser-2.47.tar.gz
+      url: https://www.cpan.org/authors/id/T/TO/TODDR/XML-Parser-2.47.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -374,7 +374,7 @@ packages:
     version: "8.6.18"
     category: system
     source:
-      url: https://downloads.sourceforge.net/project/tcl/Tcl/8.6.15/https://downloads.sourceforge.net/tcl/tcl8.6.18-src.tar.gz
+      url: https://downloads.sourceforge.net/tcl/tcl8.6.18-src.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -391,7 +391,7 @@ packages:
     version: "4.0.2"
     category: system
     source:
-      url: https://files.pythonhosted.org/packages/source/f/flit-core/https://pypi.org/packages/source/f/flit-core/flit_core-4.0.2.tar.gz
+      url: https://pypi.org/packages/source/f/flit-core/flit_core-4.0.2.tar.gz
       checksum:
         type: sha256
         value: ""
