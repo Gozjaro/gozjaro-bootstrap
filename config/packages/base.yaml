@@ -273,10 +273,10 @@ packages:
     version: "5.45.4"
     category: base
     source:
-      url: https://zenlayer.dl.sourceforge.net/project/expect/Expect/5.45.4/expect5.45.4.tar.gz
+      url: https://deb.debian.org/debian/pool/main/e/expect/expect_5.45.4.orig.tar.gz
       checksum:
         type: sha256
-        value: ""
+        value: d082bf340fdb7a85b1e4e5df4d967d0140835db34a8a035c3102abb5eb62d450
     patches:
       - name: expect-5.45.4-gcc14-1.patch
         url: https://www.linuxfromscratch.org/patches/lfs/13.1-rc2/expect-5.45.4-gcc15-1.patch
@@ -803,10 +803,10 @@ packages:
     version: "4.0.7"
     category: base
     source:
-      url: https://zenlayer.dl.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.7.tar.xz
+      url: https://deb.debian.org/debian/pool/main/p/procps/procps_4.0.7.orig.tar.xz
       checksum:
         type: sha256
-        value: ""
+        value: 36dd88bb129cbaad5c5481cddde6dd16ab533e677cf99c424f0bb63f555f7e47
     build:
       system: autotools
       configure:
@@ -974,10 +974,10 @@ packages:
     version: "23.7"
     category: base
     source:
-      url: https://zenlayer.dl.sourceforge.net/project/psmisc/psmisc/psmisc-23.7.tar.xz
+      url: https://deb.debian.org/debian/pool/main/p/psmisc/psmisc_23.7.orig.tar.xz
       checksum:
         type: sha256
-        value: ""
+        value: 58c55d9c1402474065adae669511c191de374b0871eec781239ab400b907c327
     build:
       system: autotools
       configure:
