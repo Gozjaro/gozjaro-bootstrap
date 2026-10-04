@@ -36,14 +36,19 @@ extract_pkg() {
     local prefix="$1"
     local workdir="${2:-$SOURCES_DIR}"
     local tarball tops top target stem
-    tarball=$(find_tarball "$prefix")
+    if ! tarball=$(find_tarball "$prefix"); then
+        return 1
+    fi
     # Distinct top-level path components in the archive.
     tops=$(tar tf "$tarball" 2>/dev/null | awk -F/ 'NF{print $1}' | sort -u)
-    if [ "$(printf '%s\n' "$tops" | wc -l)" = "1" ]; then
+    if [ -n "$tops" ] && [ "$(printf '%s\n' "$tops" | wc -l)" = "1" ]; then
         top="$tops"
         target="${workdir}/${top}"
         [ -e "$target" ] && rm -rf "$target"
-        ( cd "$workdir" && tar -xf "$tarball" )
+        if ! ( cd "$workdir" && tar -xf "$tarball" ); then
+            rm -rf "$target"
+            die "failed to extract source archive '$tarball'; remove it and rerun stage 20-fetch-sources"
+        fi
     else
         # Tarball has no single top dir (e.g. tzdata). Extract into a
         # synthesised dir named after the tarball stem.
@@ -52,7 +57,10 @@ extract_pkg() {
         target="${workdir}/${stem}"
         [ -e "$target" ] && rm -rf "$target"
         mkdir -p "$target"
-        ( cd "$target" && tar -xf "$tarball" )
+        if ! ( cd "$target" && tar -xf "$tarball" ); then
+            rm -rf "$target"
+            die "failed to extract source archive '$tarball'; remove it and rerun stage 20-fetch-sources"
+        fi
     fi
     printf '%s\n' "$target"
 }
