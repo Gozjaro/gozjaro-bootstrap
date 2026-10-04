@@ -192,7 +192,7 @@ packages:
     version: "1.25.0"
     category: system
     source:
-      url: https://mirrors.tuna.tsinghua.edu.cn/gnu/wget/wget-1.25.0.tar.gz
+      url: https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz
       checksum:
         type: sha256
         value: ""
@@ -374,7 +374,7 @@ packages:
     version: "8.6.18"
     category: system
     source:
-      url: https://downloads.sourceforge.net/tcl/tcl8.6.18-src.tar.gz
+      url: https://distfiles.macports.org/tcl/tcl8.6.18-src.tar.gz
       checksum:
         type: sha256
         value: ""
