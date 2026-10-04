@@ -190,7 +190,14 @@ verify_downloaded_checksums() {
 
             # Find matching file
             local matched_file=""
+            local source_filename
+            source_filename=$(manifest_get_filename "$name" 2>/dev/null || true)
+            if [ -n "$source_filename" ] && [ -f "${SOURCES_DIR}/$source_filename" ]; then
+                matched_file="${SOURCES_DIR}/$source_filename"
+            fi
+
             for f in "${SOURCES_DIR}"/${name}-*; do
+                [ -z "$matched_file" ] || break
                 [ -f "$f" ] && matched_file="$f" && break
             done
 
