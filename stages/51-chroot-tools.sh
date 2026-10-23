@@ -92,7 +92,7 @@ b_bison() {
 }
 
 b_perl() {
-    sh Configure -des \
+    bash Configure -des \
         -Dprefix=/usr \
         -Dvendorprefix=/usr \
         -Duseshrplib \

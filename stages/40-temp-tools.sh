@@ -41,7 +41,7 @@ b_ncurses() {
 
 b_bash() {
     ./configure --prefix=/usr \
-        --build="$(sh support/config.guess)" \
+        --build="$(bash support/config.guess)" \
         --host="$LFS_TGT" \
         --without-bash-malloc \
         bash_cv_strtold_broken=no

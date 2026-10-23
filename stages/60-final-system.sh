@@ -410,7 +410,7 @@ b_less() {
 b_perl_final() {
     export BUILD_ZLIB=False
     export BUILD_BZIP2=0
-    sh Configure -des \
+    bash Configure -des \
         -Dprefix=/usr \
         -Dvendorprefix=/usr \
         -Dprivlib=/usr/lib/perl5/5.40/core_perl \

@@ -182,7 +182,7 @@ jobs:
           echo "  Memory: $(free -h | awk '/^Mem:/{print $2}')"
           echo "  Disk:   $(df -h '${{ env.LFS }}' | awk 'NR==2{print $4}')"
 
-      - name: Fix coreutils and shell aliases
+      - name: Fix coreutils
         run: |
           set -euo pipefail
 
@@ -208,24 +208,8 @@ jobs:
             fi
           fi
 
-          # Ensure sh points to bash
-          if [ -L /bin/sh ]; then
-            TARGET=$(readlink -f /bin/sh)
-            if echo "$TARGET" | grep -qi bash; then
-              echo "sh is already linked to bash: $TARGET"
-            else
-              echo "Changing sh symlink to point to bash"
-              sudo ln -sf /bin/bash /bin/sh
-            fi
-          elif [ ! -e /bin/sh ]; then
-            echo "Creating sh symlink to bash"
-            sudo ln -sf /bin/bash /bin/sh
-          fi
-
           # Verify fixes
           echo "sort version: $(sort --version | head -1)"
-          echo "sh points to: $(readlink -f /bin/sh)"
-          alias sh 2>/dev/null || echo "sh is not aliased"
 
       - name: Run full build (source mode)
         if: env.BUILD_MODE == 'source'

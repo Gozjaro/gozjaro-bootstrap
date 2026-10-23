@@ -58,6 +58,24 @@ ver_check Texinfo   texi2any 5.0
 ver_check Xz        xz      5.0.0
 ver_kernel 4.19
 
+# wget is required: stage 20 fetches the pinned installer release and the
+# upstream md5sums with it directly, regardless of whether curl is present.
+if command -v wget >/dev/null 2>&1; then
+    log "wget found: $(wget --version 2>/dev/null | head -n1)"
+else
+    warn "wget is missing: stage 20 downloads the installer release with wget"; fail=1
+fi
+
+# Live ISO host tools: stage 90 packs the root tree with mksquashfs and
+# builds the ISO with xorriso.
+for tool in mksquashfs xorriso; do
+    if command -v "$tool" >/dev/null 2>&1; then
+        log "$tool found: $(command -v "$tool")"
+    else
+        warn "$tool is missing: stage 90 needs it to build the live ISO"; fail=1
+    fi
+done
+
 if mount | grep -q 'devpts on /dev/pts' && [ -e /dev/ptmx ]; then
     log "kernel supports UNIX 98 PTY"
 else
@@ -73,7 +91,6 @@ alias_check() {
 }
 alias_check awk  GNU
 alias_check yacc Bison
-alias_check sh   Bash
 
 if printf 'int main(){}\n' | g++ -x c++ - -o /tmp/gozjaro_cc_test >/dev/null 2>&1; then
     log "g++ works"; rm -f /tmp/gozjaro_cc_test
