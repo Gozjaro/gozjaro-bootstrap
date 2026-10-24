@@ -46,7 +46,7 @@ RELEASE_NOTES="## Gozjaro Linux ${DISTRO_VERSION} live ISO
 - Trusted CA bundle (Debian ca-certificates) — HTTPS verification works out of the box
 - gozpak package manager
 - linux-firmware (broad hardware support)
-- \`gozjaro-install\` TUI installer (github.com/Gozjaro/gozjaro-install)
+- \`gozjaro-install\` CLI disk installer (github.com/Gozjaro/gozjaro-installer-rs, GHA release)
 
 ### Boot
 \`\`\`
@@ -56,7 +56,8 @@ qemu-system-x86_64 -m 2G -cdrom ${ISO_FILE}
 ### Install to disk
 Boot the live ISO, then run:
 \`\`\`
-gozjaro-install --target /dev/sdX
+gozjaro-install disks            # list candidate whole disks
+gozjaro-install run --disk /dev/sdX --yes
 \`\`\`
 "
 

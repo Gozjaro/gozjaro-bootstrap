@@ -527,30 +527,52 @@ repo_local_patches() {
 repo_local_patches
 
 # ---------------------------------------------------------------------------
-# Installer release (github.com/Gozjaro/gozjaro-install), pinned to a commit in
-# lfs.env (GOZJARO_INSTALL_REF / GOZJARO_INSTALL_SHA256). Stage 77 deploys this
-# exact tree into the live system, so the ISO always ships the installer that
-# was tested. codeload tarballs are byte-deterministic for a given commit, so
-# the sha256 is a hard gate (a changed/absent release fails the build here,
-# not later in the live image).
+# Installer (github.com/Gozjaro/gozjaro-installer-rs), pinned in lfs.env:
+#   * source tarball (codeload @GOZJARO_INSTALL_REF, SHA256 hard gate) —
+#     carries the chroot initramfs builder script
+#   * release binary (GOZJARO_INSTALL_RELEASE + _BIN_SHA256) — the x86_64
+#     ELF /usr/bin/gozjaro-install, built by the repo's GHA in a
+#     debian:bullseye container (glibc 2.31). codeload tarballs and
+#     release assets are byte-stable for a pinned ref, so the sha256
+#     checks are hard gates: a changed/absent release fails the build
+#     here, not later in the live image. Stage 77 deploys both.
 # ---------------------------------------------------------------------------
 if [ -n "${GOZJARO_INSTALL_REF:-}" ]; then
     install_tarball="gozjaro-install-${GOZJARO_INSTALL_REF}.tar.gz"
-    install_url="https://codeload.github.com/Gozjaro/gozjaro-install/tar.gz/${GOZJARO_INSTALL_REF}"
+    install_url="https://codeload.github.com/Gozjaro/gozjaro-installer-rs/tar.gz/${GOZJARO_INSTALL_REF}"
     if [ -f "$SOURCES_DIR/$install_tarball" ]; then
         logline "installer $install_tarball already present"
     else
-        logline "fetching installer release $install_tarball (${GOZJARO_INSTALL_REF:0:8})"
+        logline "fetching installer source $install_tarball (${GOZJARO_INSTALL_REF:0:8})"
         wget --timeout=30 --tries=3 --progress=bar:force:noscroll \
             -U "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
             -O "$SOURCES_DIR/$install_tarball" "$install_url" \
-            || die "failed to download installer release $install_url"
+            || die "failed to download installer source $install_url"
     fi
     if [ -n "${GOZJARO_INSTALL_SHA256:-}" ]; then
         actual=$(sha256sum "$SOURCES_DIR/$install_tarball" | awk '{print $1}')
         [ "$actual" = "$GOZJARO_INSTALL_SHA256" ] || \
             die "installer tarball $install_tarball sha256 mismatch: got $actual, want $GOZJARO_INSTALL_SHA256"
         logline "installer $install_tarball sha256 verified"
+    fi
+    if [ -n "${GOZJARO_INSTALL_RELEASE:-}" ]; then
+        install_bin="gozjaro-install-x86_64-linux"
+        bin_url="https://github.com/Gozjaro/gozjaro-installer-rs/releases/download/${GOZJARO_INSTALL_RELEASE}/gozjaro-install-x86_64-linux"
+        if [ -f "$SOURCES_DIR/$install_bin" ]; then
+            logline "installer binary $install_bin already present"
+        else
+            logline "fetching installer release binary $install_bin (${GOZJARO_INSTALL_RELEASE})"
+            wget --timeout=30 --tries=3 --progress=bar:force:noscroll \
+                -U "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+                -O "$SOURCES_DIR/$install_bin" "$bin_url" \
+                || die "failed to download installer binary $bin_url"
+        fi
+        if [ -n "${GOZJARO_INSTALL_BIN_SHA256:-}" ]; then
+            actual=$(sha256sum "$SOURCES_DIR/$install_bin" | awk '{print $1}')
+            [ "$actual" = "$GOZJARO_INSTALL_BIN_SHA256" ] || \
+                die "installer binary $install_bin sha256 mismatch: got $actual, want $GOZJARO_INSTALL_BIN_SHA256"
+            logline "installer $install_bin sha256 verified"
+        fi
     fi
 fi
 
