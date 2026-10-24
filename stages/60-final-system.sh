@@ -720,7 +720,14 @@ b_ninja() {
     install -vm755 ninja /usr/bin/
 }
 
-b_dbus() {
+b_dbus_base() {
+    # FIRST PASS: install the D-Bus library BEFORE systemd builds.
+    # systemd's meson (line: dependency('dbus-1', required: get_option('dbus')))
+    # hard-requires dbus-1.pc when -Ddbus=enabled, so in a fresh tree dbus
+    # must precede 60.systemd. This pass builds with -Dsystemd=disabled:
+    # libsystemd does not exist yet, and dbus does not need it to build.
+    # Provides: libdbus-1.so, dbus-daemon, dbus-1.pc, dbus-uuidgen.
+
     # Create system user/group for the message bus daemon.
     groupadd -g 18 messagebus 2>/dev/null || true
     useradd -c "D-Bus Message Daemon" -d /run/dbus \
@@ -732,20 +739,14 @@ b_dbus() {
     # earlier in this stage (60.meson/60.ninja before 60.dbus) and expat
     # (the only hard dep, required for the default message_bus=true)
     # builds at 60.expat. glib/gio are probed only when modular_tests is
-    # enabled -> disable it. dbus is built AFTER systemd in this stage, so
-    # enable systemd: meson then installs bus/dbus.{service,socket} into
-    # systemd_system_unitdir + the multi-user/sockets wants symlinks and
-    # compiles dbus-daemon with sd_listen_fds() activation. Without it
-    # nothing ever creates /run/dbus/system_bus_socket and logind and
-    # every bus client die with 'Failed to connect to system bus'
-    # (field incident 2026-10-24). --wrap-mode=nofallback: never let
-    # meson reach out the network for subprojects.
+    # enabled -> disable it. --wrap-mode=nofallback: never let meson reach
+    # out the network for subprojects.
     mkdir -v build && cd build
     meson setup .. \
         --prefix=/usr \
         --buildtype=release \
         --wrap-mode=nofallback \
-        -Dsystemd=enabled \
+        -Dsystemd=disabled \
         -Dsystemd_system_unitdir=/usr/lib/systemd/system \
         -Dselinux=disabled \
         -Dapparmor=disabled \
@@ -774,6 +775,42 @@ EOF
     chmod 644 /usr/lib/tmpfiles.d/gozjaro-dbus.conf
 
     ln -sfv /etc/machine-id /var/lib/dbus/machine-id 2>/dev/null || true
+}
+
+b_dbus() {
+    # SECOND PASS: now that 60.systemd has installed libsystemd, rebuild
+    # dbus with -Dsystemd=enabled in a separate build dir (meson refuses
+    # to reconfigure the same dir with different -D values). This is the
+    # pass that compiles dbus-daemon with sd_listen_fds() activation and
+    # makes meson install bus/dbus.{service,socket} into
+    # /usr/lib/systemd/system + the multi-user/sockets wants symlinks.
+    # Without it nothing socket-activates the system bus and logind and
+    # every bus client die with 'Failed to connect to system bus'
+    # (field incident 2026-10-24).
+    #
+    # A fresh tree must build the dbus library first (b_dbus_base) or
+    # systemd's -Ddbus=enabled meson gate fails; this final pass restores
+    # the socket-activated daemon. The two-pass order is load-bearing.
+    mkdir -v build-sd && cd build-sd
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        --wrap-mode=nofallback \
+        -Dsystemd=enabled \
+        -Dsystemd_system_unitdir=/usr/lib/systemd/system \
+        -Dselinux=disabled \
+        -Dapparmor=disabled \
+        -Dmodular_tests=disabled \
+        -Dxml_docs=disabled \
+        -Ddoxygen_docs=disabled \
+        -Duser_session=false \
+        -Dsystem_socket=/run/dbus/system_bus_socket
+    ninja
+    ninja install
+    # the final dbus-daemon (sd_listen_fds) + meson-installed units must be
+    # in place or the boot-time system bus will never come up
+    [ -f /usr/lib/systemd/system/dbus.socket ] || die "dbus.socket not installed by final dbus build"
+    log "dbus (second pass, systemd=enabled) installed: socket-activated daemon + units"
 }
 
 b_systemd() {
@@ -1105,6 +1142,11 @@ build_pkg 60.vim            "vim-"          b_vim
 build_pkg 60.procps         "procps_"       b_procps
 build_pkg 60.util-linux-fin "util-linux-"   b_util_linux_final
 build_pkg 60.e2fsprogs      "e2fsprogs-"    b_e2fsprogs
+# dbus library first pass: systemd's meson (-Ddbus=enabled) hard-requires
+# dbus-1.pc via pkg-config, so the dbus library must precede 60.systemd in a
+# fresh tree. Second pass (60.dbus) rebuilds it with systemd=enabled once
+# libsystemd exists — see b_dbus_base / b_dbus.
+build_pkg 60.dbus-base      "dbus-"         b_dbus_base
 build_pkg 60.systemd        "systemd-"      b_systemd
 build_pkg 60.dbus           "dbus-"         b_dbus
 build_pkg 60.linux-firmware "linux-firmware-" b_linux_firmware
