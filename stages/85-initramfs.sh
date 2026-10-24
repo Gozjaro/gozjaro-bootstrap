@@ -38,7 +38,7 @@ ln -s bin "$STAGING/usr"   2>/dev/null || true   # tiny merged-usr inside ramfs
 
 # --- copy a small set of binaries --------------------------------------------
 need_bins=(
-    bash mount umount mkdir sleep cat ls echo ln cp mv rm sed grep findmnt
+    seq bash mount umount mkdir sleep cat ls echo ln cp mv rm sed grep findmnt
     blkid switch_root modprobe insmod losetup kmod
 )
 # Resolve each name against common locations (covers merged-usr layouts where
