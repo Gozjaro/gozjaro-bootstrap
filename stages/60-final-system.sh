@@ -833,6 +833,7 @@ b_systemd() {
         -Ddbus=enabled \
         -Dblkid=enabled \
         -Dkmod=enabled \
+        -Dagetty-path=/usr/sbin/agetty \
         -Dsplit-bin=false \
         -Dfallback-hostname="${DISTRO_ID}" \
         -Ddefault-dnssec=no \
