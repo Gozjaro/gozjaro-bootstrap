@@ -138,6 +138,16 @@ cat > "$STAGING/init" <<'INIT'
 #
 # NO set -e: a single failing command would silently kill PID 1 and panic.
 
+# Standard PATH for the whole boot: the kernel no longer seeds PATH into the
+# init environment (dmesg shows only HOME=/ and TERM=linux), and
+# switch_root passes our environment to /sbin/init. Without an exported
+# PATH, PID 1 (systemd) has none, and every unit with a bare ExecStart
+# (e.g. modprobe@.service's `modprobe -abq %i`) fails with "Unable to
+# locate executable". /init itself still works — bash falls back to its
+# compiled-in default PATH — which is why the defect only surfaces in
+# systemd, not in the initramfs.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 rescue() {
     # Two jobs: (1) leave a permanent trace — /init's stdout can be invisible
     # on a quiet console, but dmesg always survives; (2) hand the user a
