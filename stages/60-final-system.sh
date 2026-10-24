@@ -732,15 +732,21 @@ b_dbus() {
     # earlier in this stage (60.meson/60.ninja before 60.dbus) and expat
     # (the only hard dep, required for the default message_bus=true)
     # builds at 60.expat. glib/gio are probed only when modular_tests is
-    # enabled -> disable it. No systemd/libsystemd in the chroot ->
-    # disable explicitly. --wrap-mode=nofallback: never let meson reach
-    # out the network for subprojects.
+    # enabled -> disable it. dbus is built AFTER systemd in this stage, so
+    # enable systemd: meson then installs bus/dbus.{service,socket} into
+    # systemd_system_unitdir + the multi-user/sockets wants symlinks and
+    # compiles dbus-daemon with sd_listen_fds() activation. Without it
+    # nothing ever creates /run/dbus/system_bus_socket and logind and
+    # every bus client die with 'Failed to connect to system bus'
+    # (field incident 2026-10-24). --wrap-mode=nofallback: never let
+    # meson reach out the network for subprojects.
     mkdir -v build && cd build
     meson setup .. \
         --prefix=/usr \
         --buildtype=release \
         --wrap-mode=nofallback \
-        -Dsystemd=disabled \
+        -Dsystemd=enabled \
+        -Dsystemd_system_unitdir=/usr/lib/systemd/system \
         -Dselinux=disabled \
         -Dapparmor=disabled \
         -Dmodular_tests=disabled \
@@ -1082,8 +1088,8 @@ build_pkg 60.vim            "vim-"          b_vim
 build_pkg 60.procps         "procps_"       b_procps
 build_pkg 60.util-linux-fin "util-linux-"   b_util_linux_final
 build_pkg 60.e2fsprogs      "e2fsprogs-"    b_e2fsprogs
-build_pkg 60.dbus           "dbus-"         b_dbus
 build_pkg 60.systemd        "systemd-"      b_systemd
+build_pkg 60.dbus           "dbus-"         b_dbus
 build_pkg 60.linux-firmware "linux-firmware-" b_linux_firmware
 build_pkg 60.cpio          "cpio-"            b_cpio
 build_pkg 60.popt          "popt-"            b_popt
