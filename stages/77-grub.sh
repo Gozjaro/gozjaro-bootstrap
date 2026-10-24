@@ -71,44 +71,42 @@ b_grub() {
 
 build_pkg 77.grub "grub-2." b_grub
 
-# --- Install gozjaro-install -------------------------------------------------
-# The installer release is the pinned codeload tarball that stage 20 fetched
-# into $SOURCES_DIR (GOZJARO_INSTALL_REF / GOZJARO_INSTALL_SHA256 in lfs.env).
-# Deploy its exact tree into the live system so the ISO ships the installer
-# that was tested — NOT the stale /gozjaro/tools/gozjaro-install that used to
-# live in this repo (that file is now deleted). Layout on the live system:
-#   /usr/bin/gozjaro-install                (entry shim, py3)
-#   /usr/share/gozjaro-install/lib/{__init__,actions,disks}.py
-#   /usr/share/gozjaro-install/{tui,text}.py
-#   /usr/sbin/gozjaro-build-initramfs       (chroot initramfs builder, 0755)
-# The installer chroots into the target root and runs gozjaro-build-initramfs
-# from /usr/sbin, so that path is load-bearing (see build-initramfs.sh).
-if [ -n "${GOZJARO_INSTALL_REF:-}" ] && [ -f "$SOURCES_DIR/gozjaro-install-${GOZJARO_INSTALL_REF}.tar.gz" ]; then
-    tarball="$SOURCES_DIR/gozjaro-install-${GOZJARO_INSTALL_REF}.tar.gz"
-    if [ -n "${GOZJARO_INSTALL_SHA256:-}" ]; then
-        actual=$(sha256sum "$tarball" | awk '{print $1}')
-        [ "$actual" = "$GOZJARO_INSTALL_SHA256" ] || \
-            die "installer tarball sha256 mismatch: got $actual, want $GOZJARO_INSTALL_SHA256"
-    fi
-    # codeload wraps everything in one top dir "gozjaro-install-<ref>/".
-    top="gozjaro-install-${GOZJARO_INSTALL_REF}"
-    stage="$(mktemp -d)"
-    trap 'rm -rf "$stage"' RETURN
-    tar -xzf "$tarball" -C "$stage"
-    src="$stage/$top"
-    [ -d "$src" ] || die "unexpected installer tarball layout: no $src"
-    # entry shim
-    install -v -m755 "$src/gozjaro-install" /usr/bin/
-    # python package + front-ends
-    install -v -d /usr/share/gozjaro-install/lib
-    for f in "$src"/lib/__init__.py "$src"/lib/actions.py "$src"/lib/disks.py; do
-        install -v -m644 "$f" /usr/share/gozjaro-install/lib/
-    done
-    install -v -m644 "$src/tui.py" "$src/text.py" /usr/share/gozjaro-install/
-    # chroot initramfs builder (0755: the installer execs it directly)
-    install -v -m755 "$src/build-initramfs.sh" /usr/sbin/gozjaro-build-initramfs
-    [ -f /usr/sbin/gozjaro-build-initramfs ] || die "gozjaro-build-initramfs not installed"
-    log "gozjaro-install (${GOZJARO_INSTALL_REF:0:8}) deployed: /usr/bin/gozjaro-install + /usr/share/gozjaro-install + /usr/sbin/gozjaro-build-initramfs"
-else
-    die "installer release not found: no gozjaro-install-${GOZJARO_INSTALL_REF:-?}.tar.gz in $SOURCES_DIR (run stage 20 first, or set GOZJARO_INSTALL_REF in lfs.env)"
+# --- Install gozjaro-install (rust) -------------------------------------------------
+# Stage 20 fetched the pinned source tarball AND the GHA release binary into
+# $SOURCES_DIR (lfs.env: GOZJARO_INSTALL_REF / _RELEASE / _BIN_SHA256).
+# Deploy them into the live system so the ISO ships the exact installer
+# that was tested. The binary was built in a debian:bullseye container
+# (glibc 2.31, this distro's glibc) — no host toolchain needed.
+# Layout on the live system:
+#   /usr/bin/gozjaro-install             (rust CLI, x86_64 ELF)
+#   /usr/sbin/gozjaro-build-initramfs   (chroot initramfs builder, 0755;
+#                                        the installer execs it by this
+#                                        exact path, so it is load-bearing)
+bin="$SOURCES_DIR/gozjaro-install-x86_64-linux"
+[ -f "$bin" ] || die "installer release binary missing: $bin (run stage 20 first; GOZJARO_INSTALL_RELEASE=${GOZJARO_INSTALL_RELEASE:-unset} in lfs.env)"
+if [ -n "${GOZJARO_INSTALL_BIN_SHA256:-}" ]; then
+    actual=$(sha256sum "$bin" | awk '{print $1}')
+    [ "$actual" = "$GOZJARO_INSTALL_BIN_SHA256" ] || \
+        die "installer binary sha256 mismatch: got $actual, want $GOZJARO_INSTALL_BIN_SHA256"
 fi
+install -v -m755 "$bin" /usr/bin/gozjaro-install
+# chroot initramfs builder, from the pinned source tarball
+tarball="$SOURCES_DIR/gozjaro-install-${GOZJARO_INSTALL_REF:-?}.tar.gz"
+[ -f "$tarball" ] || die "installer source tarball missing: $tarball (run stage 20 first)"
+if [ -n "${GOZJARO_INSTALL_SHA256:-}" ]; then
+    actual=$(sha256sum "$tarball" | awk '{print $1}')
+    [ "$actual" = "$GOZJARO_INSTALL_SHA256" ] || \
+        die "installer tarball sha256 mismatch: got $actual, want $GOZJARO_INSTALL_SHA256"
+fi
+# codeload wraps the repo in one top dir "gozjaro-installer-rs-<ref>/".
+top="gozjaro-installer-rs-${GOZJARO_INSTALL_REF}"
+stage="$(mktemp -d)"
+trap 'rm -rf "$stage"' RETURN
+tar -xzf "$tarball" -C "$stage"
+src="$stage/$top"
+[ -d "$src" ] || die "unexpected installer tarball layout: no $src"
+install -v -m755 "$src/scripts/gozjaro-build-initramfs.sh" /usr/sbin/gozjaro-build-initramfs
+[ -f /usr/sbin/gozjaro-build-initramfs ] || die "gozjaro-build-initramfs not installed"
+# smoke: the installed binary must run against THIS tree's glibc
+/usr/bin/gozjaro-install --version >/dev/null || die "gozjaro-install will not run here (glibc mismatch?)"
+log "gozjaro-install ${GOZJARO_INSTALL_RELEASE} (${GOZJARO_INSTALL_REF:0:8}) deployed: /usr/bin/gozjaro-install + /usr/sbin/gozjaro-build-initramfs"
