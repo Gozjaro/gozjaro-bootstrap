@@ -757,6 +757,22 @@ b_dbus() {
     ninja
     ninja install
 
+    # dbus-daemon never mkdir()s the socket's parent directory (verified in
+    # dbus/dbus-sysdeps-unix.c: the unix listener just unlinks a stale
+    # socket and binds), and dbus's own tmpfiles.d only manages
+    # /var/lib/dbus - nothing creates /run/dbus. systemd 261.2 ships no
+    # dbus units of its own, and neither the traditional forking unit nor
+    # the socket-activated one adds SocketDirectory=. Without this
+    # tmpfiles entry, every boot dies with:
+    #   Failed to bind socket "/run/dbus/system_bus_socket": ENOENT
+    # systemd-tmpfiles-setup.service (sysinit.target) creates the dir
+    # before sockets.target starts dbus.socket.
+    install -d -m755 /usr/lib/tmpfiles.d
+    cat > /usr/lib/tmpfiles.d/gozjaro-dbus.conf <<'EOF'
+d /run/dbus 0755 root root -
+EOF
+    chmod 644 /usr/lib/tmpfiles.d/gozjaro-dbus.conf
+
     ln -sfv /etc/machine-id /var/lib/dbus/machine-id 2>/dev/null || true
 }
 
