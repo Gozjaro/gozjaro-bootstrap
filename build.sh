@@ -153,6 +153,24 @@ run_stage() {
             p=$(dirname "$p")
         done
         chmod -R a+rX "$GOZJARO_ROOT" 2>/dev/null || true
+        # Re-acquire, as root, the directory entries this lfs stage installs
+        # into. 50-chroot-prep hands the whole tree back to root
+        # (chown -R root:root) before the chroot; if 30/40 are re-run after
+        # that (lost marker, --force, wiped state) the install-target
+        # directories are root-owned and `make install` as lfs cannot even
+        # unlink pre-existing files:
+        #   install: cannot remove '/mnt/lfs/usr/bin/m4': Permission denied
+        # chown is a root-only operation, so this repair must happen here,
+        # before dropping to lfs. NO -R: directory entries only — a
+        # recursive chown would flip ownership of the files installed by
+        # the chroot stages (systemd & co.) that live in these same
+        # directories. With the directory lfs-owned, GNU install's
+        # unlink+create succeeds over root-owned files alike.
+        local d
+        for d in bin sbin lib usr usr/bin usr/sbin usr/lib usr/lib64 \
+                 usr/include usr/share tools; do
+            [ -d "$LFS/$d" ] && chown lfs:lfs "$LFS/$d"
+        done
         # Re-invoke the same script as the lfs user with its login env.
         su -l lfs -c "GOZJARO_ROOT='$GOZJARO_ROOT' bash '$script'"
     else
