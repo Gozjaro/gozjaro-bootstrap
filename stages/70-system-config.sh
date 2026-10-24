@@ -116,6 +116,14 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM
 EOF
 
+# Enable a manual-login getty on tty1 for the INSTALLED system: the live
+# image autologs via the drop-in above (which the installer strips on the
+# target), but the target must still get a login prompt. Wire the
+# canonical pieces: the instance alias (autovt@.service -> getty@.service)
+# plus getty.target pulled from multi-user.target.
+ln -sfv /usr/lib/systemd/system/getty@.service /etc/systemd/system/autovt@tty1.service
+ln -sfv /usr/lib/systemd/system/getty.target /etc/systemd/system/multi-user.target.wants/getty.target
+
 # Journal: volatile storage only (live ISO has no persistent /var/log/journal).
 mkdir -p /etc/systemd/journald.conf.d
 cat > /etc/systemd/journald.conf.d/live.conf <<'EOF'
