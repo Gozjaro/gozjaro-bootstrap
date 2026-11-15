@@ -1004,7 +1004,7 @@ b_ca_certificates() {
     # repo-local patch (delivered into $SOURCES_DIR by stage 20) makes it
     # optional — verified byte-identical .crt with or without it — so this
     # does not drag the pip/setuptools/cffi/libffi chain into the tree.
-    apply_patch "$src" "ca-certificates-20260816-lazy_import-1.patch"
+    apply_patch "$src" "ca-certificates-20260601-lazy_import-1.patch"
     # Generate + install: .crt -> /usr/share/ca-certificates/mozilla/,
     # update-ca-certificates -> /usr/sbin. `make` (all) runs first so the
     # `install` target's `for p in *.crt` has something to copy.

@@ -1,15 +1,18 @@
-# Gozjaro in-tree patch: ca-certificates 20260816 (Debian native source)
+# Gozjaro in-tree patch: ca-certificates 20260601 (Debian native source)
 #
 # Makes python3-cryptography OPTIONAL for certdata2pem.py. Upstream Debian
 # lists it in Build-Depends-Indep, but the script uses it for exactly one
 # thing: a log-only expired-certificate notice. PEM generation is pure
 # stdlib base64, so with cryptography absent the .crt output is unchanged.
 #
-# Verified byte-identical 2026-10-19: 121 certs generated with and without
-# cryptography diff clean against each other and against Debian's own
-# pre-generated .deb payload (also 121). In the LFS chroot cryptography is
-# simply not installed; the notice is skipped — a verified-equivalent build
-# mode, not a workaround of a failure.
+# Originally verified byte-identical 2026-10-19 against 20260816 (121
+# certs, diff clean against Debian's own pre-generated .deb payload).
+# Re-verified 2026-11-15 against 20260601 after 20260816 was delisted
+# from the Debian pool: patch applies cleanly (patch -Np1), and running
+# certdata2pem.py WITHOUT cryptography generates the same 121 .crt set
+# (openssl-verified). In the LFS chroot cryptography is simply not
+# installed; the notice is skipped — a verified-equivalent build mode,
+# not a workaround of a failure.
 #
 # Delivered repo-local: stage 20 copies patches/*.patch into $SOURCES_DIR
 # (this patch has no upstream URL to download).

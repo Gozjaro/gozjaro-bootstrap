@@ -43,8 +43,14 @@ https://www.python.org/ftp/	https://mirrors.ustc.edu.cn/python/ftp/
 https://files.pythonhosted.org/packages/	https://mirrors.ustc.edu.cn/pypi/packages/
 https://pypi.org/packages/	https://mirrors.ustc.edu.cn/pypi/packages/
 
-# Debian source pool (expect / procps / psmisc .orig tarballs)
+# Debian source pool (ca-certificates, expect / procps / psmisc .orig
+# tarballs). USTC mirrors Debian under /debian/ with the pool/ layout
+# preserved verbatim. Both pool hosts are equivalent; the ftp.debian.org
+# entry keeps ftp-host manifest URLs mirror-rewritten too. (If this mirror
+# entry 404s from the runner, download_url falls back to the upstream pool
+# URL, which is known-reachable from the build VM.)
 https://deb.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/
+https://ftp.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/
 
 # GitHub (release assets + repo archives). Preserves the path tail.
 https://github.com/	https://mirrors.ustc.edu.cn/github/
@@ -65,7 +71,7 @@ https://www.iana.org/	https://mirrors.ustc.edu.cn/iana/
 https://www.nano-editor.org/	https://mirrors.ustc.edu.cn/nano/
 https://zlib.net/fossils/	https://mirrors.ustc.edu.cn/gnu/zlib/
 # LFS (ch.6) packages use astron.com release tarballs (ship a generated
-# configure, unlike GitHub git snapshots). USTC dropped its /astron/ tree
+# configure, unlike the GitHub git snapshots). USTC dropped its /astron/ tree
 # (404, 2026-11-15); the LFS source tree is mirrored instead under
 # /lfs/lfs-packages/<book-version>/ with a FLAT layout (basenames only, no
 # /pub/<pkg>/ hierarchy), so each astron package dir rewrites to the book
@@ -74,8 +80,3 @@ https://zlib.net/fossils/	https://mirrors.ustc.edu.cn/gnu/zlib/
 # in the manifest (a generic /astron.com/ entry cannot work: the flat layout
 # does not preserve the /pub/<pkg>/ path tail).
 https://astron.com/pub/file/	https://mirrors.ustc.edu.cn/lfs/lfs-packages/13.1-rc2/
-# Debian pool — psmisc/procps-ng .orig tarballs. USTC mirrors Debian under
-# /debian/ with the pool/ layout preserved verbatim. (If this mirror entry
-# 404s from the runner, download_url falls back to the upstream
-# deb.debian.org URL, which is known-reachable from the build VM.)
-https://deb.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/
