@@ -43,8 +43,14 @@ https://www.python.org/ftp/	https://mirrors.ustc.edu.cn/python/ftp/
 https://files.pythonhosted.org/packages/	https://mirrors.ustc.edu.cn/pypi/packages/
 https://pypi.org/packages/	https://mirrors.ustc.edu.cn/pypi/packages/
 
-# Debian source pool (expect / procps / psmisc .orig tarballs)
+# Debian source pool (ca-certificates, expect / procps / psmisc .orig
+# tarballs). USTC mirrors Debian under /debian/ with the pool/ layout
+# preserved verbatim. Both pool hosts are equivalent; the ftp.debian.org
+# entry keeps ftp-host manifest URLs mirror-rewritten too. (If this mirror
+# entry 404s from the runner, download_url falls back to the upstream pool
+# URL, which is known-reachable from the build VM.)
 https://deb.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/
+https://ftp.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/
 
 # GitHub (release assets + repo archives). Preserves the path tail.
 https://github.com/	https://mirrors.ustc.edu.cn/github/
@@ -67,8 +73,3 @@ https://zlib.net/fossils/	https://mirrors.ustc.edu.cn/gnu/zlib/
 # LFS (ch.6) uses the astron.com "file" release tarball (ships a generated
 # configure, unlike the GitHub git snapshot). USTC mirrors it under /astron/.
 https://astron.com/	https://mirrors.ustc.edu.cn/astron/
-# Debian pool — psmisc/procps-ng .orig tarballs. USTC mirrors Debian under
-# /debian/ with the pool/ layout preserved verbatim. (If this mirror entry
-# 404s from the runner, download_url falls back to the upstream
-# deb.debian.org URL, which is known-reachable from the build VM.)
-https://deb.debian.org/debian/pool/	https://mirrors.ustc.edu.cn/debian/pool/

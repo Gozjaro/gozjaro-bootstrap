@@ -309,7 +309,7 @@ packages:
     dependencies: []
 
   - name: ca-certificates
-    version: "20260816"
+    version: "20260601"
     category: system
     source:
       # Trusted CA bundle — the distribution-level gap behind "unable to get
@@ -324,14 +324,19 @@ packages:
       #                             rehash), then /etc/ssl/certs/cert.pem -> bundle
       # certdata2pem.py's only non-stdlib import is python3-cryptography, used
       # for a LOG-ONLY expired-cert notice; PEM generation is pure base64. The
-      # repo-local patch (patches/ca-certificates-20260816-lazy_import-1.patch,
+      # repo-local patch (patches/ca-certificates-20260601-lazy_import-1.patch,
       # applied via $SOURCES_DIR by the builder) makes cryptography optional —
       # verified byte-identical .crt output with or without it — so this does
       # not drag the pip/setuptools/wheel/cffi/libffi chain into the tree.
-      url: https://ftp.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20260816.tar.xz
+      # Re-pinned 2026-11-15: 20260816 was delisted from the Debian pool
+      # (404 everywhere, incl. the official pool); 20260601 is the newest
+      # live-pool version. Byte-identical across USTC/TUNA/ftp.debian.org
+      # (md5 987199e8918ed427ec494a1a716241b0). deb.debian.org host is the
+      # canonical pool host and is covered by the mirror-map entry below.
+      url: https://deb.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20260601.tar.xz
       checksum:
         type: sha256
-        value: "d939bcdd0cb058712cf4175bac76997676eb8b68fe9473765e1b40fb3d5b186a"
+        value: "7ab6301f7f34eef90a4d278647c260bc0762e0e14561f4649854cf4b0d4bea21"
     build:
       system: custom
       install_check: test -s /etc/ssl/certs/ca-certificates.crt
