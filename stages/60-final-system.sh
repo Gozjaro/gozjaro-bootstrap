@@ -675,7 +675,9 @@ b_vim() {
     make; make install
     ln -sfv vim /usr/bin/vi
     for L in /usr/share/man/{,*/}man1/vim.1; do
-        [ -f "$L" ] && ln -sv vim.1 "$(dirname "$L")/vi.1"
+        [ -f "$L" ] || continue
+        rm -f "${L%vim.1}vi.1"
+        ln -sv "$L" "${L%vim.1}vi.1"
     done
     # Vim installs its runtime files under /usr/share/vim/vimXX (the XX being
     # the version-numbered runtime dir, not necessarily derived from the patch
