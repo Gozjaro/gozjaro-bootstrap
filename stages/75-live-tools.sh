@@ -131,6 +131,25 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
     fi
+
+    # Out-of-box sshd for installed systems: the live medium gets its
+    # sshd from a first-boot hook, but a disk install boots straight into
+    # systemd, so the service must be enabled and configured here.
+    #   1. ship a minimal working sshd_config (default config denies root
+    #      password logins: PermitRootLogin defaults to prohibit-password)
+    #   2. pre-generate host keys so first boot does not race keygen
+    #   3. enable the unit (wants symlink)
+    cat > /etc/ssh/sshd_config <<'EOF'
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+EOF
+    /usr/bin/ssh-keygen -A >/dev/null 2>&1
+    install -v -d /etc/systemd/system/multi-user.target.wants
+    ln -sf /usr/lib/systemd/system/sshd.service \
+        /etc/systemd/system/multi-user.target.wants/sshd.service
+    log "sshd enabled out-of-box (config + host keys + wants symlink)"
 }
 
 # ---- Editor -----------------------------------------------------------------
