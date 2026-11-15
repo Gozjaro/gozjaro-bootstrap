@@ -91,7 +91,7 @@ b_bzip2() {
     make
     make PREFIX=/usr install
     cp -av libbz2.so.* /usr/lib
-    ln -sv libbz2.so.1.0.8 /usr/lib/libbz2.so
+    ln -sfv libbz2.so.1.0.8 /usr/lib/libbz2.so
     cp -v bzip2-shared /usr/bin/bzip2
     for i in /usr/bin/{bzcat,bunzip2}; do
         ln -sfv bzip2 "$i"
@@ -138,7 +138,7 @@ b_bc() {
 b_flex() {
     ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4 --disable-static
     make; make install
-    ln -sv flex   /usr/bin/lex
+    ln -sfv flex   /usr/bin/lex
     ln -sv flex.1 /usr/share/man/man1/lex.1 || true
 }
 
@@ -176,7 +176,7 @@ b_dejagnu() {
 b_pkgconf() {
     ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/pkgconf-2.3.0
     make; make install
-    ln -sv pkgconf /usr/bin/pkg-config
+    ln -sfv pkgconf /usr/bin/pkg-config
     ln -sv pkgconf.1 /usr/share/man/man1/pkg-config.1 || true
 }
 
@@ -312,7 +312,7 @@ b_gcc_final() {
         --with-system-zlib
     AWK=/usr/bin/gawk make
     make install
-    ln -svr /usr/bin/cpp /usr/lib
+    ln -sfvr /usr/bin/cpp /usr/lib
     # The LTO plugin lives under <machine>/<full-version>/ in the libexec tree.
     # Ask the just-installed gcc for both parts instead of hardcoding 14.2.0
     # (which is why the stale symlink broke with gcc 16.2.0).
@@ -673,7 +673,7 @@ b_vim() {
     echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
     ./configure --prefix=/usr
     make; make install
-    ln -sv vim /usr/bin/vi
+    ln -sfv vim /usr/bin/vi
     for L in /usr/share/man/{,*/}man1/vim.1; do
         [ -f "$L" ] && ln -sv vim.1 "$(dirname "$L")/vi.1"
     done
