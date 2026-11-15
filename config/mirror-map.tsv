@@ -64,9 +64,16 @@ https://distfiles.ariadne.space/	https://mirrors.ustc.edu.cn/ariadne/
 https://www.iana.org/	https://mirrors.ustc.edu.cn/iana/
 https://www.nano-editor.org/	https://mirrors.ustc.edu.cn/nano/
 https://zlib.net/fossils/	https://mirrors.ustc.edu.cn/gnu/zlib/
-# LFS (ch.6) uses the astron.com "file" release tarball (ships a generated
-# configure, unlike the GitHub git snapshot). USTC mirrors it under /astron/.
-https://astron.com/	https://mirrors.ustc.edu.cn/astron/
+# LFS (ch.6) packages use astron.com release tarballs (ship a generated
+# configure, unlike GitHub git snapshots). USTC dropped its /astron/ tree
+# (404, 2026-11-15); the LFS source tree is mirrored instead under
+# /lfs/lfs-packages/<book-version>/ with a FLAT layout (basenames only, no
+# /pub/<pkg>/ hierarchy), so each astron package dir rewrites to the book
+# version dir. Keep the version in sync with LFS_BOOK_VERSION in
+# config/lfs.env; add a per-package entry as new astron.com packages appear
+# in the manifest (a generic /astron.com/ entry cannot work: the flat layout
+# does not preserve the /pub/<pkg>/ path tail).
+https://astron.com/pub/file/	https://mirrors.ustc.edu.cn/lfs/lfs-packages/13.1-rc2/
 # Debian pool — psmisc/procps-ng .orig tarballs. USTC mirrors Debian under
 # /debian/ with the pool/ layout preserved verbatim. (If this mirror entry
 # 404s from the runner, download_url falls back to the upstream
