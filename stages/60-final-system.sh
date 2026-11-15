@@ -1054,13 +1054,88 @@ b_gptfdisk() {
     install -v -m644 sgdisk.8 gdisk.8 fixparts.8 /usr/share/man/man8
 }
 
+# Firmware profiles (GOZJARO_FIRMWARE_PROFILE, set in config/lfs.env):
+#   full     — ship the entire dated snapshot (biggest ISO, broadest support)
+#   slimmer  — x86-relevant vendors only: Intel/AMD GPUs, iwlwifi/ath/rtl/
+#              rtw wifi, common NICs. Drops ARM SoCs, datacenter NICs,
+#              Qualcomm/MediaTek and other non-x86 trees (~1G raw saved).
+#   minimal  — slimmer minus the laptop/USB extras (VM + desktop minimum).
+# Whitelists (keep-sets): anything not listed is pruned after install.
+# Single-line strings: the dir match is a " $keep_dirs " word check, so a
+# newline inside the list would break the matching ("brcm\n" != " brcm ").
+_fw_keep_dirs_slimmer="intel i915 amd amdgpu radeon xe r128 brcm mediatek ath10k ath11k ath12k rtw88 rtw89 rtlwifi rtl_nic rtl_bt qca HP LENOVO dell"
+_fw_keep_dirs_minimal="intel i915 amdgpu radeon xe ath10k ath11k ath12k rtw88 rtw89 rtlwifi rtl_nic rtl_bt"
+# Top-level (vendor-prefixed) firmware files that x86 desktops/VMs need.
+# (a300_* dropped: QCOM Adreno SoC GPU, not x86 — its top-level symlinks
+#  dangle into pruned qcom/ dirs and are pruned with them.)
+_fw_keep_files="iwlwifi-* ar3k* ar5523* ar7010* ar9170* ar9271* ath3k* ath6k* ath9k_htc* carl9170* wil6210.* rt73* rt2* rt3* mt76* qat_* hfi1_*"
+
+gozjaro_trim_firmware() {
+    local dir="${1:-/usr/lib/firmware}"
+    local profile="${GOZJARO_FIRMWARE_PROFILE:-slimmer}"
+    case "$profile" in
+    full)
+        log "linux-firmware: profile 'full' — nothing pruned"
+        return 0 ;;
+    minimal) ;; # fall through with the minimal keep-sets
+    *)
+        profile=slimmer ;;
+    esac
+
+    local keep_dirs keep_files d f b kept
+    case "$profile" in
+    minimal)
+        keep_dirs="$_fw_keep_dirs_minimal"
+        ;;
+    *)
+        keep_dirs="$_fw_keep_dirs_slimmer"
+        ;;
+    esac
+    keep_files="$_fw_keep_files"
+
+    # Prune vendor directories not in the keep-list.
+    for d in "$dir"/*/; do
+        b=${d%/}; b=${b##*/}
+        case " $keep_dirs " in
+        *" $b "*) ;;
+        *)
+            rm -rf -- "$d" ;;
+        esac
+    done
+
+    # Prune top-level firmware files that don't match the x86 keep-patterns.
+    # Symlinks are handled too: linux-firmware ships vendor-prefixed .bin
+    # files as relative symlinks into vendor subdirs; when the target dir
+    # is pruned the link goes dangling, and [ -f ] alone would miss it.
+    for f in "$dir"/*; do
+        [ -e "$f" ] || [ -L "$f" ] || continue
+        [ -d "$f" ] && continue # directories are handled by the dir loop above
+        b=${f##*/}; kept=0
+        # noglob: keep-patterns must stay literal — the build cwd holds
+        # firmware sources that would glob-expand 'iwlwifi-*' etc.
+        set -f
+        for pat in $keep_files; do
+            case "$b" in
+            $pat)
+                kept=1
+                break ;;
+            esac
+        done
+        set +f
+        [ "$kept" = 1 ] || rm -f -- "$f"
+    done
+
+    log "linux-firmware: profile '$profile' applied ($(ls "$dir" | wc -l) top-level entries kept)"
+}
+
 b_linux_firmware() {
     # linux-firmware is prebuilt binary blobs — no compilation, just copy.
-    # This adds ~500MB to $LFS and grows the live ISO significantly; trade
-    # for broad hardware support (wifi, GPU, NIC firmware).
+    # The full snapshot is ~2G and dominates the live ISO; the default
+    # 'slimmer' profile trims non-x86 vendor trees after install.
     # MAKEFLAGS must be cleared: the Makefile forwards -jN to copy-firmware.sh
     # which requires GNU parallel (not in LFS). Serial copy is fine here.
     make install FIRMWAREDIR=/usr/lib/firmware MAKEFLAGS=
+    gozjaro_trim_firmware
     log "linux-firmware installed at /usr/lib/firmware"
 }
 
