@@ -14,7 +14,15 @@
 #   4. Adds vmwgfx to /etc/modules-load.d so it loads at boot (the driver
 #      appears as /dev/dri/card0 and gives X11/Wayland GPU acceleration on
 #      VMware).
-#   5. Reboots into the new kernel (pass --no-reboot to skip).
+#   5. X11 side: writes a modesetting /etc/X11/xorg.conf (full DRM mode
+#      table instead of the fbdev driver's stuck framebuffer default),
+#      builds xrandr if missing, and drops a session autostart entry that
+#      switches the desktop to 1920x1080.
+#   6. Reboots into the new kernel (pass --no-reboot to skip).
+#
+# WARNING: never `rmmod vmwgfx`. The driver's exit path can oops the
+# kernel (irqs-disabled BUG) on this SVGA2 hardware. To replace the
+# module, reboot first, then install the new .ko.
 #
 # Usage (on the installed system, as root):
 #   sh gozjaro-kern-vmwgfx.sh            # build + install + reboot
@@ -155,7 +163,7 @@ install -m 755 arch/x86/boot/bzImage /boot/vmlinuz-$KVER
 install -m 644 .config /boot/config-$KVER
 make -s modules_install
 depmod -b / "$KVER" || depmod "$KVER"
-log "module installed: $(ls /lib/modules/$KVER/drivers/gpu/drm/vmwgfx/ 2>/dev/null | head -1)"
+log "module installed: $(ls /lib/modules/$KVER/kernel/drivers/gpu/drm/vmwgfx/ 2>/dev/null | head -1)"
 
 # --- 4. load at boot ----------------------------------------------------------
 mkdir -p /etc/modules-load.d
@@ -168,9 +176,83 @@ if modprobe -n -v vmwgfx 2>/dev/null | grep -q "insmod\|install"; then
     || log "vmwgfx not loaded yet (new module; takes effect after reboot)"
 fi
 
+# --- 5b. X11 side: modesetting + xrandr + 1920x1080 at session start --------
+# vmwgfx only gives the kernel a DRM node. X on this system defaults to the
+# fbdev driver, which is stuck at the framebuffer default mode (typically
+# 1280x800). A modesetting /etc/X11/xorg.conf gives X the full DRM mode
+# table (up to 4096x2160); a session autostart entry switches the desktop
+# to 1920x1080 on every login. Best effort: skipped when no X tree exists.
+if [ -d /usr/lib/xorg ] || [ -d /usr/lib/X11 ]; then
+  log "writing /etc/X11/xorg.conf (modesetting driver for VMware SVGA)"
+  mkdir -p /etc/X11
+  rm -f /etc/X11/xorg.conf.d/*.conf 2>/dev/null || true
+  cat > /etc/X11/xorg.conf <<'CONF'
+Section "Device"
+    Identifier "VMware GPU"
+    Driver "modesetting"
+EndSection
+
+Section "Screen"
+    Identifier "VMware Screen"
+    Device "VMware GPU"
+    DefaultDepth 24
+EndSection
+
+Section "ServerLayout"
+    Identifier "VMware Layout"
+    Screen "VMware Screen"
+EndSection
+CONF
+
+  if [ ! -x /usr/local/bin/xrandr ] && ! command -v xrandr >/dev/null 2>&1; then
+    log "building xrandr from x11-xserver-utils"
+    XU=/usr/local/src/x11-xserver-utils
+    if [ ! -d "$XU/xrandr" ]; then
+      mkdir -p /usr/local/src && cd /usr/local/src
+      OK=0
+      for U in \
+        "http://192.168.71.36:8765/x11-xserver-utils-src.tar.gz" \
+        "https://archive.debian.org/debian/pool/main/x/x11-xserver-utils/x11-xserver-utils_7.3+6.tar.gz" \
+        "https://deb.debian.org/debian/pool/main/x/x11-xserver-utils/x11-xserver-utils_7.3+6.tar.gz"
+      do
+        curl -fsSLO x11-xserver-utils-src.tar.gz "$U" && OK=1 && break
+      done
+      cd - || true
+      [ "$OK" = "1" ] || { log "WARN: x11-xserver-utils unavailable; skipping xrandr build"; OK=0; }
+      [ "$OK" = "1" ] && tar xzf /usr/local/src/x11-xserver-utils-src.tar.gz -C /usr/local/src
+    fi
+    if [ -d "$XU/xrandr" ]; then
+      cd "$XU/xrandr"
+      ( ./configure --prefix=/usr/local && make -j"$NPROC" && make install ) || \
+        ( command -v autoconf >/dev/null 2>&1 && autoconf && \
+          ./configure --prefix=/usr/local && make -j"$NPROC" && make install ) || \
+        log "WARN: xrandr build failed (X11 dev headers missing?)"
+      cd - || true
+      log "xrandr: $(command -v xrandr 2>/dev/null || echo /usr/local/bin/xrandr)"
+    fi
+  fi
+
+  DESKUSER=$(awk -F: '$3>=1000 && $1!="nobody" {print $1; exit}' /etc/passwd)
+  if [ -n "$DESKUSER" ]; then
+    H=/home/$DESKUSER
+    mkdir -p "$H/.config/autostart"
+    cat > "$H/.config/autostart/set-1080p.desktop" <<'DESK'
+[Desktop Entry]
+Type=Application
+Name=Set 1080p
+Comment=GozJaro: switch VMware virtual display to 1920x1080 at session start
+Exec=xrandr --output Virtual-1 --mode 1920x1080
+Terminal=false
+NoDisplay=true
+DESK
+    chown -R "$DESKUSER" "$H/.config/autostart" 2>/dev/null || true
+    log "session autostart 1920x1080 written for $DESKUSER"
+  fi
+fi
+
 # --- 6. reboot ----------------------------------------------------------------
 if [ "$REBOOT" = "1" ]; then
-  log "rebooting into the updated kernel (verify after boot: lsmod | grep vmwgfx; ls /dev/dri/)"
+  log "rebooting into the updated kernel (verify after boot: lsmod | grep vmwgfx; ls /dev/dri/; xrandr)"
   exec /sbin/reboot
 else
   log "done. Reboot when ready: reboot"
