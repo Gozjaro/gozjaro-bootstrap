@@ -27,7 +27,7 @@ log "ISO to publish: $ISO_FILE"
 
 # Derive a release tag from the filename.
 #   gozjaro-0.1-20260420-143022-live.iso  →  v0.1-20260420-143022
-TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//')
+TAG=$(printf '%s' "$ISO_FILE" | sed 's/^gozjaro-/v/' | sed 's/-live\.iso$//' | tr ' ' '-')  # spaces are not legal in git tag names
 log "release tag: $TAG"
 
 ISO_SIZE=$(du -h "$ISO" | cut -f1)
