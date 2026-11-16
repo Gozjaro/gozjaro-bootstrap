@@ -1134,6 +1134,11 @@ b_linux_firmware() {
     # linux-firmware is prebuilt binary blobs — no compilation, just copy.
     # The full snapshot is ~2G and dominates the live ISO; the default
     # 'slimmer' profile trims non-x86 vendor trees after install.
+    # Wipe any stale install first: a previous run (possibly with a
+    # different profile) leaves symlinks that the Makefile's plain
+    # 'ln -s' refuses to overwrite, and trimming a stale tree breaks
+    # its vendor links, tripping copy-firmware.sh's broken-link check.
+    rm -rf /usr/lib/firmware
     # MAKEFLAGS must be cleared: the Makefile forwards -jN to copy-firmware.sh
     # which requires GNU parallel (not in LFS). Serial copy is fine here.
     make install FIRMWAREDIR=/usr/lib/firmware MAKEFLAGS=
