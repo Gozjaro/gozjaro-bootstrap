@@ -30,15 +30,24 @@ done
 if [ -z "$GOZPAK_SRC" ]; then
     log "gozpak not found locally, downloading from GitHub"
     GOZPAK_SRC="/tmp/gozpak-download"
+    _gozpak_url="https://github.com/Gozjaro/gozpak/releases/download/${GOZPAK_RELEASE:-stable}/gozpak-x86_64-unknown-linux-gnu"
     if command -v curl >/dev/null 2>&1; then
-        curl -fLo "$GOZPAK_SRC" \
-            "https://github.com/Gozjaro/gozpak/releases/download/stable/gozpak"
+        curl -fLo "$GOZPAK_SRC" "$_gozpak_url"
     elif command -v wget >/dev/null 2>&1; then
-        wget -O "$GOZPAK_SRC" \
-            "https://github.com/Gozjaro/gozpak/releases/download/stable/gozpak"
+        wget -O "$GOZPAK_SRC" "$_gozpak_url"
     else
         die "No curl or wget available to download gozpak"
     fi
+fi
+
+# sha256 gate (lfs.env pin): a wrong or swapped-in binary dies here,
+# not at boot.
+if [ -n "${GOZPAK_BIN_SHA256:-}" ]; then
+    _got=$(sha256sum "$GOZPAK_SRC" | awk '{print $1}')
+    if [ "$_got" != "$GOZPAK_BIN_SHA256" ]; then
+        die "gozpak binary sha256 mismatch: got $_got, want $GOZPAK_BIN_SHA256"
+    fi
+    log "gozpak binary sha256 verified"
 fi
 
 log "installing gozpak to /usr/bin/gozpak"
@@ -73,12 +82,12 @@ if [ -n "${GOZPAK_REPOS:-}" ]; then
     printf '%s\n' "$GOZPAK_REPOS" | tr ':' '\n' > /etc/gozpak/repos.conf
 else
     log "writing default repos.conf"
-    cat > /etc/gozpak/repos.conf <<'REPOS'
+    cat > /etc/gozpak/repos.conf <<REPOS
 # Gozjaro package repositories.
 # One URL per line. Lines starting with # are comments.
 #
-# Official repo:
-https://github.com/Gozjaro/gozjaro-repo/releases/download/stable
+# Official repo (channel tag — tracks the latest ${GOZPAK_REPO_CHANNEL:-latest-alpha} snapshot):
+https://github.com/Gozjaro/gozjaro-repo/releases/download/${GOZPAK_REPO_CHANNEL:-latest-alpha}
 #
 # To use a local repo, point GOZPAK_PATH to the directory instead.
 REPOS
