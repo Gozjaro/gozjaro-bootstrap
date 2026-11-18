@@ -2,6 +2,11 @@
 # Used by stage 36-binary-install.sh when building in binary mode.
 # One package name per line. Lines starting with # are comments.
 
+# LFS base system declaration (provides-only meta-package: tells the
+# gozpak resolver what the running LFS system already supplies, e.g.
+# glibc. Must install before any package whose depends hit the LFS base.)
+gozjaro-base
+
 # C library and core
 glibc
 gcc
