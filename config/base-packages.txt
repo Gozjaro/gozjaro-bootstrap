@@ -108,3 +108,10 @@ flit-core
 wheel
 setuptools
 xml-parser
+
+# GozJaro distro extras (binary track only: already-published .gpkg in the
+# stable index — not source-buildable in the LFS tree)
+gozjaro-installer
+gozjaro-logo
+gozjaro-wallpapers
+fastfetch
