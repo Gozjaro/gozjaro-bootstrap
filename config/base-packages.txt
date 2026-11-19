@@ -70,9 +70,6 @@ psmisc
 iproute2
 kbd
 kmod
-eudev
-sysvinit
-sysklogd
 e2fsprogs
 
 # Text and docs
