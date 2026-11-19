@@ -43,7 +43,7 @@ https://github.com/libffi/libffi/releases/download/v3.8.0/libffi-3.8.0.tar.gz
 https://download.savannah.gnu.org/releases/libpipeline/libpipeline-1.5.8.tar.gz
 https://ftpmirror.gnu.org/libtool/libtool-2.6.2.tar.xz
 https://github.com/besser82/libxcrypt/releases/download/v4.5.2/libxcrypt-4.5.2.tar.xz
-https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.1.8.tar.xz
+https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.5.tar.xz
 https://github.com/lz4/lz4/releases/download/v1.10.0/lz4-1.10.0.tar.gz
 https://ftpmirror.gnu.org/m4/m4-1.4.21.tar.xz
 https://ftpmirror.gnu.org/make/make-4.4.1.tar.gz
