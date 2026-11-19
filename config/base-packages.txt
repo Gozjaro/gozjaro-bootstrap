@@ -64,6 +64,7 @@ libcap
 libxcrypt
 shadow
 openssl
+pcre2
 
 # System
 psmisc
