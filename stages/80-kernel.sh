@@ -175,7 +175,8 @@ build_kernel() {
         --enable UNIX
     make olddefconfig
 
-    make
+    make CONFIG_SHELL=/usr/bin/bash \\
+        HOSTCFLAGS=-Wno-deprecated-declarations
     make modules_install
 
     # Identify the kernel version that was just built.
