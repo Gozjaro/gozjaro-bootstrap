@@ -515,7 +515,11 @@ b_elfutils() {
 }
 
 b_libffi() {
-    ./configure --prefix=/usr --disable-static --with-gcc-arch=native
+    ./configure --prefix=/usr --disable-static
+    # LFS-standard generic x86-64: --with-gcc-arch=native emitted AVX
+    # (vpbroadcastq) into the libffi closures; 7D12 is a VM whose CPUID
+    # reports avx but the hypervisor does not expose AVX, so any ctypes
+    # closure call SIGILLs at runtime. Rebuild libffi baseline-x86-64.
     make; make install
 }
 
