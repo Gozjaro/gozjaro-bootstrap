@@ -341,7 +341,7 @@ b_sed_final() { ./configure --prefix=/usr && make && make install; }
 b_psmisc()    { ./configure --prefix=/usr && make && make install; }
 
 b_gettext_final() {
-    ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/gettext-0.24
+    ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/gettext-1.0
     make; make install
     chmod -v 0755 /usr/lib/preloadable_libintl.so 2>/dev/null || true
 }

@@ -84,9 +84,17 @@ apply_patch() {
 # build-func may re-cd; extracted dir passed as $1.
 build_pkg() {
     local marker="$1" prefix="$2" func="$3"
-    if is_done "$marker"; then
-        log "skip $marker (already done)"
-        return 0
+    local tarball
+    # A tarball delivered after the package marker (version bump, re-fetch)
+    # invalidates the marker: rebuild so the new source is actually used.
+    if tarball=$(find_tarball "$prefix"); then
+        if is_done "$marker" && [ ! "$(marker_path "$marker")" -ot "$tarball" ]; then
+            log "skip $marker (already done)"
+            return 0
+        fi
+        if is_done "$marker"; then
+            log "rebuilding $marker (marker older than $(basename "$tarball"))"
+        fi
     fi
     step "build $marker"
     local srcdir

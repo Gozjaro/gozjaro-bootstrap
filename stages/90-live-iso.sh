@@ -110,7 +110,7 @@ mksquashfs "$LFS" "$ISOROOT/live/filesystem.squashfs" \
         "$LFS/run" \
         "$LFS/tmp" \
         "$LFS/gozjaro" \
-        "$LFS/root" \
+        "$LFS/root" "$LFS/lan-index" "$LFS/manifest.toml" \
         "$LFS/var/gozjaro" \
         "$LFS/var/cache/gozjaro" \
         "$LFS/.gozjaro-chroot" \
