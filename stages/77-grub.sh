@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+    # Test-host note (QEMU acceptance): SeaBIOS i440 emulation has the legacy 8G
+    # barrier (LBA28 disks: 16777216 sectors > 1024x255x63 = 16515072 CHS max), so
+    # legacy INT13 AH=42/0x08 are rejected for >8G disks; run disk-boot acceptance
+    # on a <=7G image. Real firmware (EDD/LBA48) has no such limit and the MBR
+    # AH=41/42 probe path handles real large disks.
 # Build GRUB 2 (both i386-pc BIOS and x86_64-efi UEFI targets) and install
 # the gozjaro-install CLI installer to /usr/bin.
 # Runs inside the chroot, after stage 75 (live-tools) and before stage 80 (kernel).
@@ -36,6 +41,18 @@ b_grub() {
     # older builder left one behind.
     rm -f grub-core/extra_deps.lst
 
+    # GRUB 2.14 image-base regression (Gentoo 2026-01-16; binutils >= 2.44):
+    # when --image-base is auto-detected, ld places the i386-pc kernel
+    # image .text at 0x9074 (base + ELF/PHDR gap) instead of the exact
+    # 0x9000 entry, and some toolchains refuse the mismatch in
+    # grub-mkimagexx. Pin the kernel image .text to 0x9000 - scoped to
+    # kernel_exec_LDFLAGS in the source .am, applied BEFORE configure so
+    # the generated Makefile carries it. The global TARGET_IMG_LDFLAGS
+    # approach drags boot.img (the MBR) to 0x9000 as well, and then
+    # real_start self-jumps into zeroed RAM: SeaBIOS hangs after
+    # "Booting from Hard Disk" with an IRQ0 interrupt storm. The MBR
+    # must keep its natural .org 0x7C00.
+    sed -i 's/^\(kernel_exec_LDFLAGS.*\),0x9000.*$/\1,0x9000 -Wl,-N -Wl,-Ttext,0x9000/' grub-core/Makefile.core.am
     # --- BIOS target (i386-pc) -----------------------------------------------
     log "configuring GRUB for i386-pc (BIOS)"
     mkdir -p build-bios && cd build-bios
@@ -48,6 +65,20 @@ b_grub() {
     make
     make install
     cd ..
+
+    # Sentinel: the MBR must be linked at 0x7C00 (jump bytes at 0x74).
+    # A 0x9000 MBR (global-pin regression) self-jumps into zeroed RAM and
+    # legacy BIOS boot hangs - fail loudly here rather than at install
+    # time. Same for the kernel image .text: 0x9000 (image-base path) or
+    # 0 (very old ld, raw link) are acceptable; 0x9074 is the regression.
+    local mbrjump ktext
+    mbrjump=$(xxd -s 0x76 -l 4 /usr/lib/grub/i386-pc/boot.img | awk '{print tolower($2)}')
+    [ "$mbrjump" = "7c00" ] || { echo "ERROR: MBR linked at 0x$mbrjump (must be 0x7c00)" >&2; return 1; }
+    ktext=$(readelf -W -S /usr/lib/grub/i386-pc/kernel.img | grep -E '\.text' | awk '{print $5}')
+    case "$ktext" in
+        00009000|00000000) log "MBR 0x7C00 + kernel .text 0x$ktext OK" ;;
+        *) echo "ERROR: kernel image .text at 0x$ktext (expected 0x00009000 or 0x00000000)" >&2; return 1 ;;
+    esac
 
     # --- UEFI target (x86_64-efi) --------------------------------------------
     # Only install the module tree (/usr/lib/grub/x86_64-efi/) — the
