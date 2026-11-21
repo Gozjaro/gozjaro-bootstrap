@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+    # Test-host note (QEMU acceptance): SeaBIOS i440 emulation has the legacy 8G
+    # barrier (LBA28 disks: 16777216 sectors > 1024x255x63 = 16515072 CHS max), so
+    # legacy INT13 AH=42/0x08 are rejected for >8G disks; run disk-boot acceptance
+    # on a <=7G image. Real firmware (EDD/LBA48) has no such limit and the MBR
+    # AH=41/42 probe path handles real large disks.
 # Build GRUB 2 (both i386-pc BIOS and x86_64-efi UEFI targets) and install
 # the gozjaro-install CLI installer to /usr/bin.
 # Runs inside the chroot, after stage 75 (live-tools) and before stage 80 (kernel).
