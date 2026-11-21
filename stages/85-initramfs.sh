@@ -101,6 +101,11 @@ modules=( loop squashfs isofs overlay ext4 xfs btrfs
           sr_mod cdrom usb-storage uas
           xhci-hcd ehci-hcd uhci-hcd ohci-hcd
           nvme nvme-core
+          # IDE/PATA host adapters: legacy PIIX (QEMU -device ide-hd,
+          # i440fx, old machines) and generic ATA. CONFIG_ATA_PIIX=m in
+          # our kernel, so without it the disk never probes and blkid -U
+          # can never resolve root=UUID in the installed-system boot path.
+          ata_piix ata_generic pata_acpi
           # SCSI host adapters for VMware's four controller flavours.
           # modprobe -D only copies files that actually exist: with our
           # kernel config these are builtin (skipped), and if anyone flips
@@ -193,6 +198,7 @@ for m in loop squashfs isofs overlay ext4 xfs btrfs \
          sr_mod cdrom usb-storage uas \
          xhci-hcd ehci-hcd uhci-hcd ohci-hcd \
          nvme nvme-core \
+         ata_piix ata_generic pata_acpi \
          sd_mod BusLogic mptspi mptscsih mptbase mpt3sas vmw_pvscsi; do
     modprobe -q "$m" && echo "  + $m" || echo "  - $m (missing/builtin)"
 done
